@@ -5,7 +5,8 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-var bcrypt = require('bcrypt');
+var Promise = require('bluebird')
+var bcrypt = Promise.promisifyAll(require('bcrypt'));
  
 function tryLoginAs(user, req, res) {
     bcrypt.compare(req.body.password, user.password, function (err, valid) {
@@ -27,13 +28,21 @@ module.exports = {
             return res.badRequest("Login and password fields must be set");
 
         User.findOneByEmail(req.body.login).then(function(user) {
-            if(!user) {
-                return User.findOneByName(req.body.login).then(function(user) {
-                    tryLoginAs(user, req, res);
-                }, res.serverError);
-            }
-            tryLoginAs(user, req, res);
-        }, res.serverError);
+            if(!user)
+                return User.findOneByName(req.body.login);
+            return user;
+        }).then(function(user) {
+            if(!user)
+                return res.forbidden('Invalid username or password');
+            return bcrypt.compareAsync(req.body.password, user.password).then(function(valid) {
+                if(valid) {
+                    req.session.userid = user.id;
+                    return res.json(user);
+                } else {
+                    return res.forbidden('Invalid username or password');
+                }
+            });
+        }).catch(res.serverError);
     },
     
     logout: function(req, res) {
