@@ -5,8 +5,8 @@
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 
-var bcrypt = require('bcrypt');
-var async = require('async');
+var Promise = require('bluebird')
+var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 module.exports = {
     attributes: {
@@ -47,15 +47,12 @@ module.exports = {
     
     filterUpdate: function (attrs, next) {
         if(attrs.password) {
-            async.waterfall([
-                async.apply(bcrypt.genSalt, 10),
-                async.apply(bcrypt.hash, attrs.password)
-            ], function(err, hash, callback) {
-                if (err)
-                    return next(err);
+            bcrypt.genSaltAsync(10).then(function(salt) {
+                return bcrypt.hashAsync(attrs.password, salt);
+            }).then(function(hash) {
                 attrs.password = hash;
                 next();
-            });
+            }, next);
         } else {
             next();
         }

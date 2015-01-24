@@ -1,14 +1,30 @@
 var Promise = require("bluebird");
 
+var userPublic = ['name', 'email', 'password'];
+
 module.exports = {
-    getCurrentUser: function getCurrentUser(req, cb) {
+    getCurrent: function getCurrent(req) {
         var userid = req.session.userid;
         if(userid)
-            return User.findOneById(userid, cb);
+            return User.findOneById(userid);
         
-        if(cb)
-            cb(null, null);
-        else
-            return new Promise(function(resolve) { resolve(null); });
+        return Promise.resolve(null);
+    },
+    
+    setRestricted: function (input, userid) {
+        var data = {};
+
+        userPublic.forEach(function(key) {
+            if(input[key])
+                data[key] = input[key];
+        });
+
+        if(userid) {
+            return User.update(userid, data).then(function(user) {
+                return user[0];
+            });
+        } else {
+            return User.create(data);
+        }
     }
 };

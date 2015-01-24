@@ -30,4 +30,6 @@ module.exports.routes = {
     
     'GET /api/user/me': 'UserController.me',
     'POST /api/user/me': 'UserController.setMe',
+    
+    'POST /api/user/register': 'UserController.register',
 };

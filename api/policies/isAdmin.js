@@ -7,7 +7,7 @@
  *
  */
 module.exports = function(req, res, next) {
-    UserService.getCurrentUser(req).then(function(user) {
+    UserService.getCurrent(req).then(function(user) {
         if(user && user.isAdmin())
             return next();
         return res.forbidden('You are not admin');

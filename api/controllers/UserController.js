@@ -30,10 +30,10 @@ module.exports = {
             if(!user) {
                 return User.findOneByName(req.body.login).then(function(user) {
                     tryLoginAs(user, req, res);
-                }).catch(res.serverError);
+                }, res.serverError);
             }
             tryLoginAs(user, req, res);
-        }).catch(res.serverError);
+        }, res.serverError);
     },
     
     logout: function(req, res) {
@@ -41,24 +41,22 @@ module.exports = {
         res.json({success: true});
     },
     
-    me: function(req, res) {
-        UserService.getCurrentUser(req).then(function(user) {
+    register: function(req, res) {
+        UserService.setRestricted(req.body).then(function(user) {
             res.json(user);
-        }).catch(res.serverError);
+        }, res.serverError);
+    },
+    
+    me: function(req, res) {
+        UserService.getCurrent(req).then(function(user) {
+            res.json(user);
+        }, res.serverError);
     },
     
     setMe: function(req, res) {
-         UserService.getCurrentUser(req).then(function(user) {
-             if(req.body.password)
-                 user.password = req.body.password;
-             if(req.body.email)
-                 user.email = req.body.email;
-             user.save(function(err, user) {
-                 if(err)
-                     return res.serverError(err);
-                 res.json(user);
-             });
-        }).catch(res.serverError);       
+        UserService.setRestricted(req.body, req.session.userid).then(function(user) {
+            res.json(user);
+        }, res.serverError);
     }
 };
 
