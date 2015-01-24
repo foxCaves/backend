@@ -22,13 +22,18 @@ module.exports = {
             required: true
         },
         
+        admin: {
+            type: "boolean",
+            default: false
+        },
+        
         password: {
             type: "string",
             required: true
         },
-        
-        checkPassword: function checkPassword(password) {
-            return this.password === hashPassword(password);
+                   
+        isAdmin: function() {
+            return this.admin;
         }
     },
     
@@ -41,15 +46,19 @@ module.exports = {
     },
     
     filterUpdate: function (attrs, next) {
-         async.waterfall([
-            async.apply(bcrypt.genSalt, 10),
-            async.apply(bcrypt.hash, attrs.password)
-        ], function(err, hash, callback) {
-            if (err)
-                return next(err);
-            attrs.password = hash;
+        if(attrs.password) {
+            async.waterfall([
+                async.apply(bcrypt.genSalt, 10),
+                async.apply(bcrypt.hash, attrs.password)
+            ], function(err, hash, callback) {
+                if (err)
+                    return next(err);
+                attrs.password = hash;
+                next();
+            });
+        } else {
             next();
-        });       
+        }
     }
 };
 
