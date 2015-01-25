@@ -23,7 +23,7 @@ module.exports = {
 		}).then(function(user) {
 			if(!user)
 				return res.forbidden('Invalid username or password');
-			return bcrypt.compareAsync(req.body.password, user.password).then(function(valid) {
+			return bcrypt.compareAsync(req.body.password, user.encryptedPassword).then(function(valid) {
 				if(valid) {
 					req.session.userid = user.id;
 					return res.json(user);

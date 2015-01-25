@@ -28,9 +28,8 @@ module.exports = {
 			default: false
 		},
 		
-		password: {
-			type: 'string',
-			required: true
+		encryptedPassword: {
+			type: 'string'
 		},
 
 		files: {
@@ -45,16 +44,19 @@ module.exports = {
 		toJSON: function() {
 		  var obj = this.toObject();
 		  delete obj.password;
-		  delete obj.email_verification_code;
+		  delete obj.encryptedPassword;
+		  delete obj.emailVerificationCode;
 		  return obj;
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'admin', 'files', 'email_verification_code' ];
+	    return [ 'id', 'admin', 'files', 'encryptedPassword', 'emailVerificationCode' ];
 	},
 	
 	beforeCreate: function (attrs, next) {
+		if(!attrs.password)
+			return next("Password is required");
 		return this.filterUpdate(attrs, next);
 	},
 
@@ -67,7 +69,7 @@ module.exports = {
 			bcrypt.genSaltAsync(10).then(function(salt) {
 				return bcrypt.hashAsync(attrs.password, salt);
 			}).then(function(hash) {
-				attrs.password = hash;
+				attrs.encryptedPassword = hash;
 				next();
 			}, next);
 		} else {

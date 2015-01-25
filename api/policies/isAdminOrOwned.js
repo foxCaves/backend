@@ -18,16 +18,32 @@ module.exports = function(req, res, next) {
 	if(req.currentUser && req.currentUser.isAdmin())
 		return next();
 	var Model = actionUtil.parseModel( req );
-	
-	Model.findOneById(req.params.parentid || req.params.id).then(function (modelInstance) {
+
+	var checkModel = function checkModel(Model, modelInstance) {
 		if(!modelInstance)
-			return res.forbidden('You do not own this record');
+			throw 'You do not own this record';
 
 		var ownerId = (Model === sails.models.user) ? modelInstance.id : modelInstance.owner;
 
 		if(ownerId !== req.currentUser.id)
-			return res.forbidden('You do not own this record');
+			throw 'You do not own this record';
 
-		next();
-	}, next);
+		return modelInstance;
+	};
+
+	var endPromise = Model.findOneById(req.params.parentid || req.params.id).then(function(modelInstance) {
+		return checkModel(Model, modelInstance);
+	});
+	
+	if(req.params.parentid && req.params.id) {
+		endPromise = endPromise.then(function(parentModelInstance) {
+			var associationAttr = _.findWhere(Model.associations, { alias: req.options.alias });
+			var ChildModel = sails.models[associationAttr.collection];
+			return ChildModel.findOneById(req.params.id).then(function(modelInstance) {
+				return checkModel(ChildModel, modelInstance);
+			});
+		});
+	}
+
+	endPromise.then(next, next);
 };
