@@ -1,22 +1,23 @@
 module.exports.policies = {
 
-	'*': ['auth', 'isAdmin'],
+	'*': ['auth', 'isLoggedIn', 'isAdmin'],
   
 	UserController: {
 		login: true,
 		logout: true,
 		
-		register: true,
-		
-		me: ['auth', 'isLoggedIn'],
-		setMe: ['auth', 'isLoggedIn']
+		create: 'restrictedAttributes',
+
+		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes']
 	},
 
 	FileController: {
-		'create': ['auth', 'isLoggedIn'],
-		'find': ['auth', 'isLoggedIn'],
+		create: ['auth', 'isLoggedIn'],
+		//find: ['auth', 'isLoggedIn'],
 
-		'findOne': ['auth', 'isAdminOrOwned'],
-		//'update': ['auth', 'isAdminOrOwned']
+		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		//update: ['auth', 'isAdminOrOwned', 'restrictedAttributes']
 	}
 };

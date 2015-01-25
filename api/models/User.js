@@ -41,16 +41,17 @@ module.exports = {
 			return this.admin;
 		},
 
-		// Override toJSON instance method
-		// to remove password value
 		toJSON: function() {
 		  var obj = this.toObject();
 		  delete obj.password;
+		  delete obj.email_verification_code;
 		  return obj;
 		}
 	},
 
-	publicWritable: ['name', 'email', 'password'],
+	restrictedAttributes: function () {
+	    return [ "admin", "files", "email_verification_code" ];
+	},
 	
 	beforeCreate: function (attrs, next) {
 		return this.filterUpdate(attrs, next);

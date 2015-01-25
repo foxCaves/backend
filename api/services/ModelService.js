@@ -1,9 +1,11 @@
 function getFilteredParams(Model, input) {
-	var data = {};
+	if(!Model.restrictedAttributes)
+		return input;
 
-	Model.publicWritable.forEach(function(key) {
-		if(input[key])
-			data[key] = input[key];
+	var data = input;
+
+	Model.restrictedAttributes().forEach(function(key) {
+		delete data[key];
 	});
 
 	return data;		

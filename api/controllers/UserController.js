@@ -34,22 +34,6 @@ module.exports = {
 	logout: function(req, res) {
 		req.session.userid = null;
 		res.json({success: true});
-	},
-	
-	register: function(req, res) {
-		ModelService.setRestricted(User, req.body).then(function(user) {
-			res.json(user);
-		}, res.serverError);
-	},
-	
-	me: function(req, res) {
-		res.json(req.currentUser);
-	},
-	
-	setMe: function(req, res) {
-		ModelService.setRestricted(User, req.body, req.session.userid).then(function(user) {
-			res.json(user);
-		}, res.serverError);
 	}
 };
 

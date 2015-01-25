@@ -23,6 +23,8 @@ module.exports = {
 		}
 	},
 
-	publicWritable: ['displayName'],
+	restrictedAttributes: function () {
+	    return [ "fileID", "owner" ];
+	},
 };
 
