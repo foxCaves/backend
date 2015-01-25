@@ -17,6 +17,6 @@ module.exports.policies = {
 		'find': ['auth', 'isLoggedIn'],
 
 		'findOne': ['auth', 'isAdminOrOwned'],
-		'update': ['auth', 'isAdminOrOwned']
+		//'update': ['auth', 'isAdminOrOwned']
 	}
 };
