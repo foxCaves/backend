@@ -5,8 +5,6 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-var actionUtil = require('sails/lib/hooks/blueprints/actionUtil'); 
-
 module.exports = {
 	create: function create(req, res) {
 		var data = ModelService.getFilteredParams(File, req.body);
@@ -16,6 +14,10 @@ module.exports = {
 			User.publishAdd(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
 		}, res.serverError);
+	},
+
+	subscribe: function(req, res) {
+		
 	}
 };
 

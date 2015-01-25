@@ -13,6 +13,11 @@ module.exports = function(req, res, next) {
 	if(req.currentUser && req.currentUser.isAdmin())
 		return next();
 	var Model = actionUtil.parseModel( req );
+
+	delete req.query.id;
+	if(req.body)
+		delete req.body.id;
+	
 	Model.findOneById(req.params.id).then(function (modelInstance) {
 		var ownerId;
 		if(Model === User)

@@ -14,7 +14,7 @@ module.exports.policies = {
 
 	FileController: {
 		create: ['auth', 'isLoggedIn'],
-		//find: ['auth', 'isLoggedIn'],
+		find: ['auth', 'isLoggedIn', 'findOnlyOwned'],
 
 		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
