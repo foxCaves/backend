@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports.policies = {
 
 	'*': ['auth', 'isLoggedIn', 'isAdmin'],
@@ -8,16 +10,16 @@ module.exports.policies = {
 		
 		create: 'restrictedAttributes',
 
+		populate: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		add: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		remove: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+
 		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes']
 	},
 
 	FileController: {
-		create: ['auth', 'isLoggedIn'],
-		find: ['auth', 'isLoggedIn', 'findOnlyOwned'],
-
-		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-		//update: ['auth', 'isAdminOrOwned', 'restrictedAttributes']
+		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes'],
 	}
 };

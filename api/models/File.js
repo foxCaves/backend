@@ -1,3 +1,4 @@
+'use strict';
 /**
 * File.js
 *
@@ -8,13 +9,18 @@
 module.exports = {
 	attributes: {
 		displayName: {
-			type: "string",
+			type: 'string',
 			required: true
 		},
 
 		fileID: {
-			type: "string",
+			type: 'string',
 			unique: true,
+			required: false
+		},
+
+		extension: {
+			type: 'string',
 			required: true
 		},
 
@@ -24,7 +30,20 @@ module.exports = {
 	},
 
 	restrictedAttributes: function () {
-	    return [ "fileID", "owner" ];
+	    return [ 'id', 'fileID', 'owner' ];
 	},
+
+	beforeCreate: function (attrs, next) {
+		attrs.fileID = 'rand_' + new Date().getTime();
+		return this.filterUpdate(attrs, next);
+	},
+
+	beforeUpdate: function (attrs, next) {
+		return this.filterUpdate(attrs, next);
+	},
+	
+	filterUpdate: function (attrs, next) {
+		next();
+	}
 };
 

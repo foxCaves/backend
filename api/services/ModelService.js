@@ -1,3 +1,5 @@
+'use strict';
+
 function getFilteredParams(Model, input) {
 	if(!Model.restrictedAttributes)
 		return input;

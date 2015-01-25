@@ -1,3 +1,4 @@
+'use strict';
 /**
  * auth
  *
@@ -6,10 +7,11 @@
  * @docs        :: http://sailsjs.org/#!documentation/policies
  *
  */
+
 module.exports = function(req, res, next) {
 	var userid = req.session.userid;
 	if(userid) {
-		User.findOneById(userid).then(function(user) {
+		sails.models.user.findOneById(userid).then(function(user) {
 			req.currentUser = user;
 			next();
 		}, next);

@@ -35,6 +35,14 @@
     "type": "git",
     "url": "git@github.com:Doridian/foxCaves.git"
   },
+  "jshintConfig": {
+    "predef": [ "sails" ],
+    "node": true,
+    "browser": false,
+    "globals": {
+        "Promise": true
+    }
+  },
   "author": "anonymous node/sails user",
   "license": ""
 }

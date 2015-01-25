@@ -1,3 +1,4 @@
+'use strict';
 /**
  * 404 (Not Found) Handler
  *
@@ -17,7 +18,7 @@
  * automatically.
  */
 
-module.exports = function notFound (data, options) {
+module.exports = function notFound (data) {
 
   // Get access to `req`, `res`, & `sails`
   var req = this.req;

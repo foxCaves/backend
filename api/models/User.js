@@ -1,3 +1,4 @@
+'use strict';
 /**
 * User.js
 *
@@ -5,36 +6,36 @@
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 
-var Promise = require('bluebird')
+var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 module.exports = {
 	attributes: {
 		name: {
-			type: "string",
+			type: 'string',
 			unique: true,
 			required: true
 		},
 		
 		email: {
-			type: "email",
+			type: 'email',
 			unique: true,
 			required: true
 		},
 		
 		admin: {
-			type: "boolean",
+			type: 'boolean',
 			default: false
 		},
 		
 		password: {
-			type: "string",
+			type: 'string',
 			required: true
 		},
 
 		files: {
-			collection: "File",
-			via: "owner"
+			collection: 'File',
+			via: 'owner'
 		},
 				   
 		isAdmin: function() {
@@ -50,7 +51,7 @@ module.exports = {
 	},
 
 	restrictedAttributes: function () {
-	    return [ "admin", "files", "email_verification_code" ];
+	    return [ 'id', 'admin', 'files', 'email_verification_code' ];
 	},
 	
 	beforeCreate: function (attrs, next) {

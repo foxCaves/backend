@@ -1,3 +1,4 @@
+'use strict';
 /**
  * 400 (Bad Request) Handler
  *
@@ -15,7 +16,7 @@
  * ```
  */
 
-module.exports = function badRequest(data, options) {
+module.exports = function badRequest(data) {
 
   // Get access to `req`, `res`, & `sails`
   var req = this.req;

@@ -1,3 +1,4 @@
+'use strict';
 /**
  * 200 (OK) Response
  *
@@ -11,7 +12,7 @@
  *          - pass string to render specified view
  */
 
-module.exports = function sendOK (data, options) {
+module.exports = function sendOK (data) {
 
   // Get access to `req`, `res`, & `sails`
   var req = this.req;

@@ -18,7 +18,8 @@ module.exports = {
    ***************************************************************************/
 
    models: {
-	   migrate: "alter"
+	   migrate: 'alter',
+     connection: 'localMongo'
    }
    
   // models: {

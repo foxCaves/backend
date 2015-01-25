@@ -1,3 +1,4 @@
+'use strict';
 /**
  * isAdmin
  *
@@ -10,20 +11,19 @@
 var actionUtil = require( 'sails/lib/hooks/blueprints/actionUtil' );
 
 module.exports = function(req, res, next) {
-	if(req.currentUser && req.currentUser.isAdmin())
-		return next();
-	var Model = actionUtil.parseModel( req );
-
 	delete req.query.id;
 	if(req.body)
 		delete req.body.id;
 	
-	Model.findOneById(req.params.id).then(function (modelInstance) {
-		var ownerId;
-		if(Model === User)
-			ownerId = modelInstance.id;
-		else
-			ownerId = modelInstance.owner;
+	if(req.currentUser && req.currentUser.isAdmin())
+		return next();
+	var Model = actionUtil.parseModel( req );
+	
+	Model.findOneById(req.params.parentid || req.params.id).then(function (modelInstance) {
+		if(!modelInstance)
+			return res.forbidden('You do not own this record');
+
+		var ownerId = (Model === sails.models.user) ? modelInstance.id : modelInstance.owner;
 
 		if(ownerId !== req.currentUser.id)
 			return res.forbidden('You do not own this record');
