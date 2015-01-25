@@ -24,7 +24,7 @@ module.exports = function serverError (data, options) {
 
   // Log error to console
   if (data !== undefined) {
-    sails.log.error('Sending 500 ("Server Error") response: \n',data);
+	sails.log.error('Sending 500 ("Server Error") response: \n',data);
   }
   else sails.log.error('Sending empty 500 ("Server Error") response');
 
@@ -32,7 +32,7 @@ module.exports = function serverError (data, options) {
   // is not set to 'production'.  In production, we shouldn't
   // send back any identifying information about errors.
   if (sails.config.environment === 'production') {
-    data = undefined;
+	data = undefined;
   }
 
   return res.jsonx({error: data, code: 500});

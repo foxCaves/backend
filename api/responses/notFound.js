@@ -29,7 +29,7 @@ module.exports = function notFound (data, options) {
 
   // Log error to console
   if (data !== undefined) {
-    sails.log.verbose('Sending 404 ("Not Found") response: \n',data);
+	sails.log.verbose('Sending 404 ("Not Found") response: \n',data);
   }
   else sails.log.verbose('Sending 404 ("Not Found") response');
 
@@ -37,7 +37,7 @@ module.exports = function notFound (data, options) {
   // is not set to 'production'.  In production, we shouldn't
   // send back any identifying information about errors.
   if (sails.config.environment === 'production') {
-    data = undefined;
+	data = undefined;
   }
 
   return res.jsonx({error: data, code: 404});

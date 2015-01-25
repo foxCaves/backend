@@ -7,9 +7,7 @@
  *
  */
 module.exports = function(req, res, next) {
-    UserService.getCurrent(req).then(function(user) {
-        if(user)
-            return next();
-        return res.forbidden('You are not logged in');
-    }, next);
+	if(req.currentUser)
+		return next();
+	return res.forbidden('You are not logged in');
 };

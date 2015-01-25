@@ -9,53 +9,68 @@ var Promise = require('bluebird')
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 module.exports = {
-    attributes: {
-        name: {
-            type: "string",
-            unique: true,
-            required: true
-        },
-        
-        email: {
-            type: "email",
-            unique: true,
-            required: true
-        },
-        
-        admin: {
-            type: "boolean",
-            default: false
-        },
-        
-        password: {
-            type: "string",
-            required: true
-        },
-                   
-        isAdmin: function() {
-            return this.admin;
-        }
-    },
-    
-    beforeCreate: function (attrs, next) {
-        return this.filterUpdate(attrs, next);
-    },
+	attributes: {
+		name: {
+			type: "string",
+			unique: true,
+			required: true
+		},
+		
+		email: {
+			type: "email",
+			unique: true,
+			required: true
+		},
+		
+		admin: {
+			type: "boolean",
+			default: false
+		},
+		
+		password: {
+			type: "string",
+			required: true
+		},
 
-    beforeUpdate: function (attrs, next) {
-        return this.filterUpdate(attrs, next);
-    },
-    
-    filterUpdate: function (attrs, next) {
-        if(attrs.password) {
-            bcrypt.genSaltAsync(10).then(function(salt) {
-                return bcrypt.hashAsync(attrs.password, salt);
-            }).then(function(hash) {
-                attrs.password = hash;
-                next();
-            }, next);
-        } else {
-            next();
-        }
-    }
+		files: {
+			collection: "File",
+			via: "owner"
+		},
+				   
+		isAdmin: function() {
+			return this.admin;
+		},
+
+		// Override toJSON instance method
+		// to remove password value
+		toJSON: function() {
+		  var obj = this.toObject();
+		  delete obj.password;
+		  return obj;
+		}
+	},
+
+	publicWritable: ['name', 'email', 'password'],
+	
+	beforeCreate: function (attrs, next) {
+		return this.filterUpdate(attrs, next);
+	},
+
+	beforeUpdate: function (attrs, next) {
+		return this.filterUpdate(attrs, next);
+	},
+	
+	filterUpdate: function (attrs, next) {
+		if(attrs.password) {
+			bcrypt.genSaltAsync(10).then(function(salt) {
+				return bcrypt.hashAsync(attrs.password, salt);
+			}).then(function(hash) {
+				attrs.password = hash;
+				next();
+			}, next);
+		} else {
+			next();
+		}
+	}
 };
 

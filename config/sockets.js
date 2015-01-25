@@ -23,7 +23,7 @@ module.exports.sockets = {
   ***************************************************************************/
   onConnect: function(session, socket) {
 
-    // By default, do nothing.
+	// By default, do nothing.
 
   },
 
@@ -36,7 +36,7 @@ module.exports.sockets = {
   ***************************************************************************/
   onDisconnect: function(session, socket) {
 
-    // By default: do nothing.
+	// By default: do nothing.
   },
 
 

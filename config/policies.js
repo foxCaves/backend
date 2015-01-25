@@ -1,14 +1,22 @@
 module.exports.policies = {
 
-    '*': 'isAdmin',
+	'*': ['auth', 'isAdmin'],
   
-    UserController: {
-        login: true,
-        logout: true,
-        
-        register: true,
-        
-        me: 'isLoggedIn',
-        setMe: 'isLoggedIn'
-    }
+	UserController: {
+		login: true,
+		logout: true,
+		
+		register: true,
+		
+		me: ['auth', 'isLoggedIn'],
+		setMe: ['auth', 'isLoggedIn']
+	},
+
+	FileController: {
+		'create': ['auth', 'isLoggedIn'],
+		'find': ['auth', 'isLoggedIn'],
+
+		'findOne': ['auth', 'isAdminOrOwned'],
+		'update': ['auth', 'isAdminOrOwned']
+	}
 };

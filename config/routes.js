@@ -21,15 +21,15 @@
  */
 
 module.exports.routes = {
-    '/': {
-        view: 'homepage'
-    },
+	'/': {
+		view: 'homepage'
+	},
 
-    'POST /api/user/login': 'UserController.login',
-    'POST /api/user/logout': 'UserController.logout',
-    
-    'GET /api/user/me': 'UserController.me',
-    'POST /api/user/me': 'UserController.setMe',
-    
-    'POST /api/user/register': 'UserController.register',
+	'POST /api/user/login': 'UserController.login',
+	'POST /api/user/logout': 'UserController.logout',
+	
+	'GET /api/user/me': 'UserController.me',
+	'POST /api/user/me': 'UserController.setMe',
+	
+	'POST /api/user/register': 'UserController.register',
 };
