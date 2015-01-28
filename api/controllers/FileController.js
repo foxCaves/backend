@@ -55,8 +55,8 @@ module.exports = {
 				saveAs: sails.services.fileservice.getPath(file)
 			}, function(err, uploadedFiles) {
 				if(err) {
-					file.destroy();
-					return res.serverError(err);
+					res.serverError(err);
+					return file.destroy();
 				}
 				Model.publishCreate(file, req);
 				sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
