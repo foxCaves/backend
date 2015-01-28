@@ -4,7 +4,7 @@ module.exports.policies = {
 
 	'*': false,
 
-	CsrfController: true,
+	CsrfTokenController: true,
   
 	UserController: {
 		login: true,
