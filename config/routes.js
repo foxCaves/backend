@@ -26,7 +26,5 @@ module.exports.routes = {
 	},
 
 	'POST /api/user/login': 'UserController.login',
-	'POST /api/user/logout': 'UserController.logout',
-
-	'GET /api/csrfToken': 'CsrfController.get'
+	'POST /api/user/logout': 'UserController.logout'
 };
