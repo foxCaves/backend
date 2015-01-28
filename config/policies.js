@@ -3,6 +3,8 @@
 module.exports.policies = {
 
 	'*': false,
+
+	CsrfController: true,
   
 	UserController: {
 		login: true,
