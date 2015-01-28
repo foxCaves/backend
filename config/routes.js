@@ -25,6 +25,15 @@ module.exports.routes = {
 		view: 'homepage'
 	},
 
+	//User routes
 	'POST /api/user/login': 'UserController.login',
-	'POST /api/user/logout': 'UserController.logout'
+	'POST /api/user/logout': 'UserController.logout',
+
+	'GET /api/user/me': 'UserController.getMe',
+	'POST /api/user/me': 'UserController.updateMe',
+	'PUT /api/user/me': 'UserController.updateMe',
+
+	//File routes
+	'GET /api/file/download/:id.:extension' : 'FileController.download',
+	'GET /api/file/view/:id.:extension' : 'FileController.download',
 };

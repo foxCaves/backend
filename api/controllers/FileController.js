@@ -10,9 +10,11 @@ var mime = require('mime');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 
+var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
+
 function streamFile(req, res, contentDisposition) {
 	var file = sails.models.file.findOne(req.params.id).then(function(file) {
-		if(!file)
+		if(!file || file.extension !== req.params.extension)
 			return res.notFound();
 		var path = sails.services.fileservice.getPath(file);
 		return fs.statAsync(path).then(function(stat) {
@@ -45,12 +47,10 @@ module.exports = {
 
 		var Model = sails.models.file;
 
-		Model.create({
-			owner: req.currentUser.id,
-			extension: req.body.extension,
-			displayName: req.body.displayName,
-			fileID: sails.services.fileservice.generateFileID()
-		}).then(function(file) {
+		var params = req.body;
+		params.owner = req.currentUser.id;
+		params.fileID = sails.services.fileservice.generateFileID();
+		Model.create(params).then(function(file) {
 			uploadFile.upload({
 				saveAs: sails.services.fileservice.getPath(file)
 			}, function(err, uploadedFiles) {
@@ -75,6 +75,36 @@ module.exports = {
 			Model.publishDestroy(file.id, req);
 			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
+		});
+	},
+
+	find: function find(req, res) {
+		var Model = sails.models.file;
+
+		var query = Model.find()
+			.where({ owner: req.currentUser.id })
+			.where( actionUtil.parseCriteria(req) )
+			.limit( actionUtil.parseLimit(req) )
+			.skip( actionUtil.parseSkip(req) )
+			.sort( actionUtil.parseSort(req) );
+			// TODO: .populateEach(req.options);
+
+		query = actionUtil.populateEach(query, req);
+		query.exec(function found(err, matchingRecords) {
+			if (err)
+				return res.serverError(err);
+
+			// Only `.watch()` for new instances of the model if
+			// `autoWatch` is enabled.
+			if (req._sails.hooks.pubsub && req.isSocket) {
+				Model.subscribe(req, matchingRecords);
+				// Also subscribe to instances of all associated models
+				_.each(matchingRecords, function (record) {
+					actionUtil.subscribeDeep(req, record);
+				});
+			}
+
+			res.ok(matchingRecords);
 		});
 	}
 };

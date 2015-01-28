@@ -12,16 +12,16 @@ module.exports.policies = {
 		
 		create: 'restrictedAttributes',
 
-		populate: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-
-		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes']
+		getMe: ['auth', 'isLoggedIn'],
+		updateMe: ['auth', 'isLoggedIn', 'restrictedAttributes']
 	},
 
 	FileController: {
-		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes'],
-		create: ['auth', 'isLoggedIn'],
+		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes'],
+
+		find: ['auth', 'isLoggedIn', 'restrictedAttributes'],
+
+		create: ['auth', 'isLoggedIn', 'restrictedAttributes'],
 		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 	}
 };

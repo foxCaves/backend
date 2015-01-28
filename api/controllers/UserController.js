@@ -31,6 +31,16 @@ module.exports = {
 			});
 		}).catch(res.serverError);
 	},
+
+	getMe: function(req, res) {
+		res.json(req.currentUser);
+	},
+
+	updateMe: function(req, res) {
+		sails.models.user.update(req.currentUser.id, req.body).then(function(users) {
+			res.json(users[0]);
+		}, res.serverError);
+	},
 	
 	logout: function(req, res) {
 		req.session.userid = null;

@@ -32,6 +32,14 @@ module.exports = {
 			type: 'string'
 		},
 
+		emailVerificationCode: {
+			type: 'string'
+		},
+
+		passwordResetCode: {
+			type: 'string'
+		},
+
 		files: {
 			collection: 'File',
 			via: 'owner'
@@ -46,12 +54,13 @@ module.exports = {
 		  delete obj.password;
 		  delete obj.encryptedPassword;
 		  delete obj.emailVerificationCode;
+		  delete obj.passwordResetCode;
 		  return obj;
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'admin', 'files', 'encryptedPassword', 'emailVerificationCode' ];
+	    return [ 'id', 'admin', 'files', 'encryptedPassword', 'emailVerificationCode', 'passwordResetCode' ];
 	},
 	
 	beforeCreate: function (attrs, next) {
