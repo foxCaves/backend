@@ -58,8 +58,7 @@ module.exports = {
 					res.serverError(err);
 					return file.destroy();
 				}
-				Model.publishCreate(file, req);
-				sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
+				sails.models.user.publishAdd(req.currentUser.id, 'files', file, req);
 				res.json(file);
 			});
 		}, res.serverError);
@@ -71,7 +70,6 @@ module.exports = {
 			var file = deletedFiles[0];
 			var filePath = sails.services.fileservice.getPath(file);
 			fs.unlink(filePath, function(err) { });
-			Model.publishDestroy(file.id, req);
 			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
 		});
