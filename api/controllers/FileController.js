@@ -58,7 +58,6 @@ module.exports = {
 					file.destroy();
 					return res.serverError(err);
 				}
-				console.log(uploadedFiles);
 				Model.publishCreate(file, req);
 				sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
 				res.json(file);
