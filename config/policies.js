@@ -2,7 +2,7 @@
 
 module.exports.policies = {
 
-	'*': ['auth', 'isLoggedIn', 'isAdmin'],
+	'*': false,
   
 	UserController: {
 		login: true,
@@ -11,8 +11,6 @@ module.exports.policies = {
 		create: 'restrictedAttributes',
 
 		populate: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-		add: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
-		remove: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 
 		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes']
@@ -21,5 +19,7 @@ module.exports.policies = {
 	FileController: {
 		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 		update: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes'],
+		create: ['auth', 'isLoggedIn'],
+		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
 	}
 };

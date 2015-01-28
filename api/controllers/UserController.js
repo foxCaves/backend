@@ -9,8 +9,6 @@
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
-var blueprintAdd = require('sails/lib/hooks/blueprints/actions/add.js');
-
 module.exports = {
 	login: function(req, res) {
 		if(!req.body.login || !req.body.password)
@@ -32,13 +30,6 @@ module.exports = {
 				}
 			});
 		}).catch(res.serverError);
-	},
-
-	add: function create(req, res) {
-		if(req.params.id)
-			delete req.params.id;
-
-		blueprintAdd(req, res);
 	},
 	
 	logout: function(req, res) {

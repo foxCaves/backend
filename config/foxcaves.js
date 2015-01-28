@@ -1,3 +1,3 @@
 module.exports.foxcaves = {
-	storage: './storage/'
+	storage: process.cwd() + '/storage/'
 };

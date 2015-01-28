@@ -1,10 +1,12 @@
 'use strict';
 
-var Promise = require('bluebird');
-var fs = Promise.promisifyAll(require('fs'));
+function getPath(file) {
+	return sails.config.foxcaves.storage + '/' + file.fileID + '.' + file.extension;
+}
 
 module.exports = {
-	open: function openFile (file, mode) {
-		return fs.openAsync(sails.config.foxcaves.storage + '/' + file.fileID + '.' + file.extension, mode);
+	getPath: getPath,
+	generateFileID: function generateFileID() {
+		return 'file_' + new Date().getTime();
 	}
 };

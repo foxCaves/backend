@@ -16,7 +16,7 @@ module.exports = {
 		fileID: {
 			type: 'string',
 			unique: true,
-			required: false
+			required: true
 		},
 
 		extension: {

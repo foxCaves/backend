@@ -10,6 +10,18 @@
 
 var actionUtil = require( 'sails/lib/hooks/blueprints/actionUtil' );
 
+function checkModel(Model, modelInstance, req) {
+	if(!modelInstance)
+		throw 'You do not own this record';
+
+	var ownerId = (Model === sails.models.user) ? modelInstance.id : modelInstance.owner;
+
+	if(ownerId !== req.currentUser.id)
+		throw 'You do not own this record';
+
+	return modelInstance;
+}
+
 module.exports = function(req, res, next) {
 	delete req.query.id;
 	if(req.body)
@@ -19,31 +31,15 @@ module.exports = function(req, res, next) {
 		return next();
 	var Model = actionUtil.parseModel( req );
 
-	var checkModel = function checkModel(Model, modelInstance) {
-		if(!modelInstance)
-			throw 'You do not own this record';
-
-		var ownerId = (Model === sails.models.user) ? modelInstance.id : modelInstance.owner;
-
-		if(ownerId !== req.currentUser.id)
-			throw 'You do not own this record';
-
-		return modelInstance;
-	};
-
-	var endPromise = Model.findOneById(req.params.parentid || req.params.id).then(function(modelInstance) {
-		return checkModel(Model, modelInstance);
-	});
-	
-	if(req.params.parentid && req.params.id) {
-		endPromise = endPromise.then(function(parentModelInstance) {
+	Model.findOneById(req.params.parentid || req.params.id).then(function(modelInstance) {
+		return checkModel(Model, modelInstance, req);
+	}).then(function() {
+		if(req.params.parentid && req.params.id) {
 			var associationAttr = _.findWhere(Model.associations, { alias: req.options.alias });
 			var ChildModel = sails.models[associationAttr.collection];
 			return ChildModel.findOneById(req.params.id).then(function(modelInstance) {
-				return checkModel(ChildModel, modelInstance);
+				return checkModel(ChildModel, modelInstance, req);
 			});
-		});
-	}
-
-	endPromise.then(next, next);
+		}
+	}).then(next, next);
 };
