@@ -2,7 +2,7 @@
 /**
  * CsrfTokenController
  *
- * @description :: Server-side logic for managing csrf dummy tokens
+ * @description :: Server-side logic for dispensing csrf tokens
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
