@@ -18,13 +18,9 @@ function streamFile(req, res, contentDisposition) {
 			return res.notFound();
 		var path = sails.services.fileservice.getPath(file);
 		return fs.statAsync(path).then(function(stat) {
-			var mimeType = mime.lookup(file.extension);
-			if(mimeType == 'text/html' || mimeType == 'text/javascript') //We do not want to be XSS'd over!
-				mimeType = 'text/plain';
-
 			res.setHeader('Content-Disposition', contentDisposition + '; filename=' + file.displayName);
 			res.setHeader('Content-Length', stat.size);
-			res.setHeader('Content-Type', mimeType);
+			res.setHeader('Content-Type', file.mimeType);
 
 			fs.createReadStream(path).pipe(res);
 		});
@@ -50,19 +46,43 @@ module.exports = {
 		var params = req.body;
 		params.owner = req.currentUser.id;
 		params.fileID = sails.services.fileservice.generateFileID();
+
+		params.mimeType = mime.lookup(params.extension).toLowerCase();
+		if(params.mimeType === 'text/html' || params.mimeType === 'text/javascript') //We do not want to be XSS'd over!
+			params.mimeType = 'text/plain';
+
 		Model.create(params).then(function(file) {
-			uploadFile.upload({
-				saveAs: sails.services.fileservice.getPath(file)
-			}, function(err, uploadedFiles) {
-				if(err) {
-					res.serverError(err);
-					return file.destroy();
+			var fileName = sails.services.fileservice.getPath(file);
+			return Promise.promisify(uploadFile.upload, uploadFile)({
+				saveAs: fileName
+			}).then(function(err, uploadedFiles) {
+				if(file.mimeType.indexOf('image/') === 0) {
+					var sharp = require('sharp');
+					var thumbFile = sails.services.fileservice.getThumbnailPath(file, true);
+					return sharp(fileName).rotate().resize(150, 150).embed().flatten().toFile(thumbFile).then(function() {
+						file.hasThumbnail = true;
+						return Promise.promisify(file.save, file)();
+					}, function(err) {
+						fs.unlink(thumbFile, function(err) { });
+						return file;
+					});
+				} else {
+					return file;
 				}
-				Model.publishCreate(file, req);
-				sails.models.user.publishAdd(req.currentUser.id, 'files', file, req);
-				res.json(file);
+			}, function(err) {
+				res.serverError(err);
+				file.destroy();
+				fs.unlink(fileName, function(err) { });
+				return;
 			});
-		}, res.serverError);
+		}).then(function(file) {
+			if(!file)
+				return res.serverError('This should never happen');
+			Model.publishCreate(file);
+			//TODO: Wait for sails to update and publish the entire object
+			sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
+			res.json(file);
+		}).catch(res.serverError);
 	},
 
 	destroy: function remove(req, res) {
@@ -71,7 +91,7 @@ module.exports = {
 			var file = deletedFiles[0];
 			var filePath = sails.services.fileservice.getPath(file);
 			fs.unlink(filePath, function(err) { });
-			Model.publishDestroy(file.id, req);
+			Model.publishDestroy(file.id);
 			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
 		});

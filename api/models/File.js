@@ -24,13 +24,22 @@ module.exports = {
 			required: true
 		},
 
+		mimeType: {
+			type: 'string',
+			required: true
+		},
+
+		hasThumbnail: {
+			type: 'boolean'
+		},
+
 		owner: {
 			model: 'User'
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner' ];
+	    return [ 'id', 'fileID', 'owner', 'mimeType', 'size' ];
 	},
 
 	beforeCreate: function (attrs, next) {
