@@ -33,13 +33,18 @@ module.exports = {
 			type: 'boolean'
 		},
 
+		size: {
+			type: 'integer',
+			required: false
+		},
+
 		owner: {
 			model: 'User'
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner', 'mimeType', 'size' ];
+	    return [ 'id', 'fileID', 'owner', 'mimeType', 'hasThumbnail', 'size' ];
 	},
 
 	beforeCreate: function (attrs, next) {

@@ -18,14 +18,14 @@ module.exports = {
 		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
 				return res.notFound();
-			var path = sails.services.fileservice.getPath(file);
-			return fs.statAsync(path).then(function(stat) {
-				res.setHeader('Content-Disposition', contentDisposition + '; filename=' + file.displayName);
-				res.setHeader('Content-Length', stat.size);
-				res.setHeader('Content-Type', file.mimeType);
 
-				fs.createReadStream(path).pipe(res);
-			});
+			var path = sails.services.fileservice.getPath(file);
+
+			res.setHeader('Content-Disposition', contentDisposition + '; filename=' + file.displayName);
+			res.setHeader('Content-Length', file.size);
+			res.setHeader('Content-Type', file.mimeType);
+
+			fs.createReadStream(path).pipe(res);
 		}, res.serverError);
 	},
 
@@ -61,13 +61,14 @@ module.exports = {
 			var fileName = sails.services.fileservice.getPath(file);
 			return Promise.promisify(uploadFile.upload, uploadFile)({
 				saveAs: fileName
-			}).then(function(err, uploadedFiles) {
+			}).then(function(uploadedFiles) {
+				file.size = uploadedFiles[0].size;
 				if(file.mimeType.indexOf('image/') === 0) {
 					var sharp = require('sharp');
 					var thumbFile = sails.services.fileservice.getStorageThumbnailPath(file, true);
 					return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
 						file.hasThumbnail = true;
-						return Promise.promisify(file.save, file)();
+						return file;
 					}, function(err) {
 						fs.unlink(thumbFile, function(err) { });
 						return file;
@@ -76,14 +77,13 @@ module.exports = {
 					return file;
 				}
 			}, function(err) {
-				res.serverError(err);
 				file.destroy();
 				fs.unlink(fileName, function(err) { });
-				return;
+				throw err;
 			});
 		}).then(function(file) {
-			if(!file)
-				return res.serverError('This should never happen');
+			return Promise.promisify(file.save, file)();
+		}).then(function(file) {
 			Model.publishCreate(file);
 			//TODO: Wait for sails to update and publish the entire object
 			sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
