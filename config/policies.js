@@ -23,5 +23,8 @@ module.exports.policies = {
 
 		create: ['auth', 'isLoggedIn', 'restrictedAttributes'],
 		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+
+		contents: true,
+		thumbnail: true
 	}
 };

@@ -34,6 +34,6 @@ module.exports.routes = {
 	'PUT /api/user/me': 'UserController.updateMe',
 
 	//File routes
-	'GET /api/file/download/:id.:extension' : 'FileController.download',
-	'GET /api/file/view/:id.:extension' : 'FileController.download',
+	'GET /api/file/contents/:id.:extension' : 'FileController.contents',
+	'GET /api/file/thumbnail/:id.:extension' : 'FileController.thumbnail',
 };
