@@ -50,6 +50,7 @@ module.exports = {
 		var Model = sails.models.file;
 
 		var params = req.body;
+		params.hidden = true;
 		params.owner = req.currentUser.id;
 		params.fileID = sails.services.fileservice.generateFileID();
 
@@ -82,6 +83,7 @@ module.exports = {
 				throw err;
 			});
 		}).then(function(file) {
+			file.hidden = false;
 			return Promise.promisify(file.save, file)();
 		}).then(function(file) {
 			Model.publishCreate(file);
@@ -107,7 +109,7 @@ module.exports = {
 		var Model = sails.models.file;
 
 		var query = Model.find()
-			.where({ owner: req.currentUser.id })
+			.where({ owner: req.currentUser.id, hidden: false })
 			.where( actionUtil.parseCriteria(req) )
 			.limit( actionUtil.parseLimit(req) )
 			.skip( actionUtil.parseSkip(req) )

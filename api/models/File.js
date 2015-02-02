@@ -34,8 +34,12 @@ module.exports = {
 		},
 
 		size: {
-			type: 'integer',
-			required: false
+			type: 'integer'
+		},
+
+		hidden: {
+			type: 'boolean',
+			required: true
 		},
 
 		owner: {
@@ -44,7 +48,7 @@ module.exports = {
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner', 'mimeType', 'hasThumbnail', 'size' ];
+	    return [ 'id', 'fileID', 'owner', 'mimeType', 'hasThumbnail', 'size', 'hidden' ];
 	},
 
 	beforeCreate: function (attrs, next) {
