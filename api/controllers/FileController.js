@@ -15,8 +15,8 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
-		var file = sails.models.file.findOne(req.params.id).then(function(file) {
-			if(!file || file.extension !== req.params.extension)
+		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
 				return res.notFound();
 			var path = sails.services.fileservice.getPath(file);
 			return fs.statAsync(path).then(function(stat) {
@@ -30,11 +30,12 @@ module.exports = {
 	},
 
 	thumbnail: function thumbnail(req, res) {
-		var file = sails.models.file.findOne(req.params.id).then(function(file) {
-			if(!file || file.extension !== req.params.extension)
+		if(req.params.thumbextension.toLowerCase() !== 'png')
+			return res.notFound();
+		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
 				return res.notFound();
-			var path = sails.services.fileservice.getThumbnailPath(file);
-			return fs.statAsync(path).then(function(stat) {
+			return sails.services.fileservice.getThumbnailPath(file).then(function(path) {
 				res.setHeader('Content-Type', 'image/png');
 				fs.createReadStream(path).pipe(res);
 			});
@@ -63,7 +64,7 @@ module.exports = {
 			}).then(function(err, uploadedFiles) {
 				if(file.mimeType.indexOf('image/') === 0) {
 					var sharp = require('sharp');
-					var thumbFile = sails.services.fileservice.getThumbnailPath(file, true);
+					var thumbFile = sails.services.fileservice.getStorageThumbnailPath(file, true);
 					return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
 						file.hasThumbnail = true;
 						return Promise.promisify(file.save, file)();
