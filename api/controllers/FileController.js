@@ -121,18 +121,25 @@ module.exports = {
 			if (err)
 				return res.serverError(err);
 
-			// Only `.watch()` for new instances of the model if
-			// `autoWatch` is enabled.
 			if (req._sails.hooks.pubsub && req.isSocket) {
 				Model.subscribe(req, matchingRecords);
-				// Also subscribe to instances of all associated models
-				_.each(matchingRecords, function (record) {
-					actionUtil.subscribeDeep(req, record);
-				});
 			}
 
 			res.ok(matchingRecords);
 		});
+	},
+
+	findOnePublic: function findOne(req, res) {
+		var query = sails.models.file.findOneByFileID(req.params.id).populate('owner').then(function(file) {
+			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
+				return res.notFound();
+
+			if (req._sails.hooks.pubsub && req.isSocket) {
+				Model.subscribe(req, file);
+			}
+
+			res.ok(file);
+		}, res.serverError);
 	}
 };
 

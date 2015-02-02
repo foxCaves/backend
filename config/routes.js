@@ -34,6 +34,7 @@ module.exports.routes = {
 	'PUT /api/user/me': 'UserController.updateMe',
 
 	//File routes
-	'GET /api/file/contents/:id.:extension' : 'FileController.contents',
-	'GET /api/file/thumbnail/:id.:extension.:thumbextension' : 'FileController.thumbnail',
+	'GET /api/file/:id.:extension' : 'FileController.findOnePublic',
+	'GET /api/file/:id.:extension/contents' : 'FileController.contents',
+	'GET /api/file/:id.:extension/thumbnail.:thumbextension' : 'FileController.thumbnail',
 };

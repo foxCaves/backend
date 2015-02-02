@@ -44,6 +44,16 @@ module.exports = {
 
 		owner: {
 			model: 'User'
+		},
+
+		toJSON: function() {
+			var obj = this.toObject();
+			delete obj.hidden;
+			if(obj.owner && obj.owner.name)
+				obj.owner = obj.owner.name;
+			else
+				delete obj.owner;
+			return obj;
 		}
 	},
 
