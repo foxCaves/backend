@@ -29,8 +29,12 @@ module.exports = {
 			required: true
 		},
 
-		hasThumbnail: {
-			type: 'boolean'
+		thumbnailExtension: {
+			type: 'string'
+		},
+
+		thumbnailMimeType: {
+			type: 'string'
 		},
 
 		size: {
@@ -58,7 +62,7 @@ module.exports = {
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner', 'mimeType', 'hasThumbnail', 'size', 'hidden' ];
+	    return [ 'id', 'fileID', 'owner', 'mimeType', 'thumbnailExtension', 'thumbnailMimeType', 'size', 'hidden' ];
 	},
 
 	beforeCreate: function (attrs, next) {

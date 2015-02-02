@@ -16,29 +16,49 @@ module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
 		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
-			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
+			if(!file || file.extension !== req.params.extension)
 				return res.notFound();
+
+			var rangeStart, rangeEnd;
+			if(req.headers.range) {
+				var rangeMatch = req.headers.range.match(/^bytes=([0-9]+)-([0-9]+)$/);			
+				if(rangeMatch) {
+					rangeStart = parseInt(rangeMatch[1]);
+					rangeEnd = parseInt(rangeMatch[2]);
+					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0)
+						return res.status(416).json("Invalid range for file");
+				} else {
+					return res.badRequest();
+				}
+			}
 
 			var path = sails.services.fileservice.getPath(file);
 
+			res.setHeader('Accept-Range', 'bytes');
 			res.setHeader('Content-Disposition', contentDisposition + '; filename=' + file.displayName);
-			res.setHeader('Content-Length', file.size);
 			res.setHeader('Content-Type', file.mimeType);
 
-			fs.createReadStream(path).pipe(res);
+			if(rangeStart === undefined) {
+				res.setHeader('Content-Length', file.size);
+				fs.createReadStream(path).pipe(res);
+			} else {
+				res.setHeader('Content-Length', (rangeEnd - rangeStart) + 1);
+				res.setHeader('Content-Range', 'bytes ' + rangeStart + '-' + rangeEnd + '/' + file.size);
+				fs.createReadStream(path, {start: rangeStart, end: rangeEnd}).pipe(res.status(206));
+			}
 		}, res.serverError);
 	},
 
 	thumbnail: function thumbnail(req, res) {
-		if(req.params.thumbextension.toLowerCase() !== 'png')
-			return res.notFound();
 		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
-			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
+			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
-			return sails.services.fileservice.getThumbnailPath(file).then(function(path) {
-				res.setHeader('Content-Type', 'image/png');
-				fs.createReadStream(path).pipe(res);
-			});
+
+			var path = sails.services.fileservice.getThumbnailPath(file);
+
+			res.setHeader('Content-Type', file.thumbnailMimeType);
+
+			fs.createReadStream(path).pipe(res);
 		}, res.serverError);
 	},
 
@@ -50,6 +70,7 @@ module.exports = {
 		var Model = sails.models.file;
 
 		var params = req.body;
+		params.extension = params.extension.toLowerCase();
 		params.hidden = true;
 		params.owner = req.currentUser.id;
 		params.fileID = sails.services.fileservice.generateFileID();
@@ -64,18 +85,23 @@ module.exports = {
 				saveAs: fileName
 			}).then(function(uploadedFiles) {
 				file.size = uploadedFiles[0].size;
-				if(file.mimeType.indexOf('image/') === 0) {
-					var sharp = require('sharp');
-					var thumbFile = sails.services.fileservice.getStorageThumbnailPath(file, true);
-					return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
-						file.hasThumbnail = true;
+				var mimeCategory = file.mimeType.split('/')[0];
+				switch(mimeCategory) {
+					case 'image':
+						var sharp = require('sharp');
+						var thumbFile = sails.services.fileservice.getThumbnailPath(file, 'png');
+						return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
+							file.thumbnailExtension = 'png';
+							file.thumbnailMimeType = 'image/png';
+							return file;
+						}, function(err) {
+							fs.unlink(thumbFile, function(err) { });
+							return file;
+						});
+					case 'text': //TODO: Write this
 						return file;
-					}, function(err) {
-						fs.unlink(thumbFile, function(err) { });
+					default:
 						return file;
-					});
-				} else {
-					return file;
 				}
 			}, function(err) {
 				file.destroy();
@@ -131,7 +157,7 @@ module.exports = {
 
 	findOnePublic: function findOne(req, res) {
 		var query = sails.models.file.findOneByFileID(req.params.id).populate('owner').then(function(file) {
-			if(!file || file.extension.toLowerCase() !== req.params.extension.toLowerCase())
+			if(!file)
 				return res.notFound();
 
 			if (req._sails.hooks.pubsub && req.isSocket) {
