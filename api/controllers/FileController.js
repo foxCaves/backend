@@ -18,20 +18,32 @@ module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
 		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
-			if(!file || file.extension !== req.params.extension)
-				return res.notFound();
+			if(!file || file.extension !== req.params.extension) {
+				res.notFound();
+				return;
+			}
+
+			var sendData = (req.method !== 'HEAD' && req.method !== 'OPTIONS');
 
 			var rangeStart, rangeEnd;
 			if(req.headers.range) {
+				if(!sendData) {
+					res.badRequest();
+					return;
+				}
+
 				var rangeMatch = req.headers.range.match(/^bytes=([0-9]*)-([0-9]*)$/);			
 				if(rangeMatch) {
 					rangeStart = (rangeMatch[1] === '') ? 0 : rangeMatch[1];
 					rangeEnd = (rangeMatch[2] === '') ? (file.size - 1) : rangeMatch[2];
-					
-					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0)
-						return res.status(416).json("Invalid range for file");
+
+					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0) {
+						res.status(416).json("Invalid range for file");
+						return;
+					}
 				} else {
-					return res.badRequest();
+					res.badRequest();
+					return;
 				}
 			}
 
@@ -41,6 +53,10 @@ module.exports = {
 
 			if(rangeStart === undefined) {
 				res.setHeader('Content-Length', file.size);
+				if(!sendData) {
+					res.ok();
+					return;
+				}
 				return FileService.open(file, 'r');
 			} else {
 				res.setHeader('Content-Length', (rangeEnd - rangeStart) + 1);
@@ -49,6 +65,8 @@ module.exports = {
 				return FileService.open(file, 'r', {range: {startPos: rangeStart, endPos: rangeEnd}});
 			}
 		}).then(function(stream) {
+			if(!stream)
+				return;
 			stream.pipe(res);
 		}).catch(res.serverError);
 	},
@@ -58,10 +76,18 @@ module.exports = {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
 
-			res.setHeader('Content-Type', file.thumbnailMimeType);
+			var sendData = (req.method !== 'HEAD' && req.method !== 'OPTIONS');
 
+			res.setHeader('Content-Type', file.thumbnailMimeType);
+			
+			if(!sendData) {
+				res.ok();
+				return;
+			}
 			return FileService.openThumbnail(file, 'r');
 		}).then(function(stream) {
+			if(!stream)
+				return;
 			stream.pipe(res);
 		}).catch(res.serverError);
 	},
