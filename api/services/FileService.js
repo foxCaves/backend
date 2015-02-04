@@ -13,8 +13,6 @@ var uriMongo = 'mongodb://'
     + gridfsMongo.host+':'+(gridfsMongo.port || 27017)
     + '/'+gridfsMongo.database;
 
-    console.log(uriMongo);
-
 var MongoDBConnection = new MongoDB.Db(gridfsMongo.database, new MongoDB.Server(gridfsMongo.host, gridfsMongo.port), {w: 'majority'});
 var GridFS = require('gridfs-stream');
 
@@ -67,7 +65,7 @@ module.exports = {
 	},
 	
 	openThumbnail: function getThumbnail(file, mode, options) {
-		return openFile(file.thumbnailPath, mode, 'store_thumbnail', options);
+		return openFile(file.filePath, mode, 'store_thumbnail', options);
 	},
 
 	delete: function deleteFile(file) {
@@ -84,9 +82,9 @@ module.exports = {
 					return gridFS;
 				}
 			}).then(function(gridFS) {
-				if(file.thumbnailPath) {
+				if(file.filePath) {
 					return gridFS.removeAsync({
-						filename: file.thumbnailPath,
+						filename: file.filePath,
 						root: 'store_thumbnail'
 					});
 				}

@@ -57,12 +57,12 @@ module.exports = {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
 
-			var path = FileService.getThumbnailPath(file);
-
 			res.setHeader('Content-Type', file.thumbnailMimeType);
 
-			fs.createReadStream(path).pipe(res);
-		}, res.serverError);
+			return FileService.openThumbnail(file, 'r');
+		}).then(function(stream) {
+			stream.pipe(res);
+		}).catch(res.serverError);
 	},
 
 	create: function create(req, res) {
@@ -95,19 +95,38 @@ module.exports = {
 
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {
-					/*case 'image':
+					case 'image':
 						var sharp = require('sharp');
-						var thumbFile = sails.services.fileservice.getThumbnailPath(file, 'png');
-						return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
-							file.thumbnailExtension = 'png';
-							file.thumbnailMimeType = 'image/png';
-							return file;
-						}, function(err) {
-							fs.unlink(thumbFile, function(err) { });
+						return new Promise(function(resolve, reject) {
+							var pipeline = sharp().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer, info) {
+								if(err)
+									return reject(err);
+
+								file.thumbnailExtension = 'png';
+								file.thumbnailMimeType = 'image/png';
+
+								FileService.openThumbnail(file, 'w').then(function(stream) {
+									stream.on('close', function() {
+										return resolve(file);
+									});
+									stream.write(buffer);
+									stream.end();
+								}, function(err) {
+									return reject(err);
+								});
+							});
+
+							FileService.open(file, 'r').then(function(stream) {
+								stream.pipe(pipeline);
+							}, function(err) {
+								return reject(err);
+							});
+						}). catch(function(err) {
+							console.log("Error making thumbnail", err);
 							return file;
 						});
 					case 'text': //TODO: Write this
-						return file;*/
+						return file;
 					default:
 						return file;
 				}
