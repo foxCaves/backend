@@ -40,11 +40,11 @@ module.exports = {
 
 			if(rangeStart === undefined) {
 				res.setHeader('Content-Length', file.size);
-				res.status(206);
 				return FileService.open(file, 'r');
 			} else {
 				res.setHeader('Content-Length', (rangeEnd - rangeStart) + 1);
 				res.setHeader('Content-Range', 'bytes ' + rangeStart + '-' + rangeEnd + '/' + file.size);
+				res.status(206);
 				return FileService.open(file, 'r', {range: {startPos: rangeStart, endPos: rangeEnd}});
 			}
 		}).then(function(stream) {
