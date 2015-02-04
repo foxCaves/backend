@@ -8,8 +8,9 @@
  */
 
 module.exports = function(req, res, next) {
-	sails.services.captchaservice.verify(req).then(next, function(msg) {
-		console.log(arguments);
+	sails.services.captchaservice.verify(req).then(function() {
+		return next();
+	}, function(msg) {
 		var reason;
 		if(msg && msg.cause && msg.cause.message)
 			reason = msg.cause.message;

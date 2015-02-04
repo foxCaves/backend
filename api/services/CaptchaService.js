@@ -1,7 +1,8 @@
-var NoCaptcha = require('no-captcha');
 var Promise = require('bluebird');
+var NoCaptcha = require('no-captcha');
+Promise.promisifyAll(require('no-captcha').prototype);
 
-var noCaptcha = Promise.promisifyAll(new NoCaptcha(sails.config.foxcaves.recaptcha.public, sails.config.foxcaves.recaptcha.private));
+var noCaptcha = new NoCaptcha(sails.config.foxcaves.recaptcha.public, sails.config.foxcaves.recaptcha.private);
 
 module.exports = {
 	verify: function verify (req) {
