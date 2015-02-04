@@ -79,7 +79,7 @@ module.exports = {
 			var sendData = (req.method !== 'HEAD' && req.method !== 'OPTIONS');
 
 			res.setHeader('Content-Type', file.thumbnailMimeType);
-			
+
 			if(!sendData) {
 				res.ok();
 				return;
@@ -149,6 +149,10 @@ module.exports = {
 								return reject(err);
 							});
 						}). catch(function(err) {
+							file.thumbnailExtension = null;
+							file.thumbnailMimeType = null;
+							delete file.thumbnailExtension;
+							delete file.thumbnailMimeType;
 							console.log("Error making thumbnail", err);
 							return file;
 						});
