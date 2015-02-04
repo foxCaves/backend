@@ -50,7 +50,7 @@ module.exports = {
 	},
 
 	thumbnail: function thumbnail(req, res) {
-		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
 
