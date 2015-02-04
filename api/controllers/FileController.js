@@ -23,10 +23,11 @@ module.exports = {
 
 			var rangeStart, rangeEnd;
 			if(req.headers.range) {
-				var rangeMatch = req.headers.range.match(/^bytes=([0-9]+)-([0-9]+)$/);			
+				var rangeMatch = req.headers.range.match(/^bytes=([0-9]*)-([0-9]*)$/);			
 				if(rangeMatch) {
-					rangeStart = parseInt(rangeMatch[1]);
-					rangeEnd = parseInt(rangeMatch[2]);
+					rangeStart = (rangeMatch[1] === '') ? 0 : rangeMatch[1];
+					rangeEnd = (rangeMatch[2] === '') ? (file.size - 1) : rangeMatch[2];
+					
 					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0)
 						return res.status(416).json("Invalid range for file");
 				} else {
