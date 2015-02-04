@@ -134,15 +134,14 @@ module.exports = {
 	find: function find(req, res) {
 		var Model = sails.models.file;
 
-		var query = Model.find()
-			.where({ owner: req.currentUser.id, hidden: false })
-			.where( actionUtil.parseCriteria(req) )
-			.limit( actionUtil.parseLimit(req) )
-			.skip( actionUtil.parseSkip(req) )
-			.sort( actionUtil.parseSort(req) )
-			.populate('owner');
-			
-		query.exec(function found(err, matchingRecords) {
+		Model.find()
+		.where({ owner: req.currentUser.id, hidden: false })
+		.where( actionUtil.parseCriteria(req) )
+		.limit( actionUtil.parseLimit(req) )
+		.skip( actionUtil.parseSkip(req) )
+		.sort( actionUtil.parseSort(req) )
+		.populate('owner')
+		.exec(function found(err, matchingRecords) {
 			if (err)
 				return res.serverError(err);
 
