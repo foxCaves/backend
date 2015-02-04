@@ -12,10 +12,12 @@ var fs = Promise.promisifyAll(require('fs'));
 
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
+//var FileService = sails.services.fileservice;
+
 module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
-		var file = sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || file.extension !== req.params.extension)
 				return res.notFound();
 
@@ -32,21 +34,22 @@ module.exports = {
 				}
 			}
 
-			var path = sails.services.fileservice.getPath(file);
-
 			res.setHeader('Accept-Range', 'bytes');
 			res.setHeader('Content-Disposition', contentDisposition + '; filename=' + file.displayName);
 			res.setHeader('Content-Type', file.mimeType);
 
 			if(rangeStart === undefined) {
 				res.setHeader('Content-Length', file.size);
-				fs.createReadStream(path).pipe(res);
+				res.status(206);
+				return FileService.open(file, 'r');
 			} else {
 				res.setHeader('Content-Length', (rangeEnd - rangeStart) + 1);
 				res.setHeader('Content-Range', 'bytes ' + rangeStart + '-' + rangeEnd + '/' + file.size);
-				fs.createReadStream(path, {start: rangeStart, end: rangeEnd}).pipe(res.status(206));
+				return FileService.open(file, 'r', {range: {startPos: rangeStart, endPos: rangeEnd}});
 			}
-		}, res.serverError);
+		}).then(function(stream) {
+			stream.pipe(res);
+		}).catch(res.serverError);
 	},
 
 	thumbnail: function thumbnail(req, res) {
@@ -54,7 +57,7 @@ module.exports = {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
 
-			var path = sails.services.fileservice.getThumbnailPath(file);
+			var path = FileService.getThumbnailPath(file);
 
 			res.setHeader('Content-Type', file.thumbnailMimeType);
 
@@ -73,21 +76,22 @@ module.exports = {
 		params.extension = params.extension.toLowerCase();
 		params.hidden = true;
 		params.owner = req.currentUser.id;
-		params.fileID = sails.services.fileservice.generateFileID();
+		params.fileID = FileService.generateFileID();
 
 		params.mimeType = mime.lookup(params.extension).toLowerCase();
 		if(params.mimeType === 'text/html' || params.mimeType === 'text/javascript') //We do not want to be XSS'd over!
 			params.mimeType = 'text/plain';
 
 		Model.create(params).then(function(file) {
-			var fileName = sails.services.fileservice.getPath(file);
-			return Promise.promisify(uploadFile.upload, uploadFile)({
-				saveAs: fileName
-			}).then(function(uploadedFiles) {
-				file.size = uploadedFiles[0].size;
+			return Promise.promisify(uploadFile.upload, uploadFile)(FileService.makeReceiver(file)).then(function(uploadedFiles) {
+				return uploadedFiles[0];
+			}).then(function(uploadedFile) {
+				file.size = uploadedFile.size;
+				file.filePath = uploadedFile.fd;
+
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {
-					case 'image':
+					/*case 'image':
 						var sharp = require('sharp');
 						var thumbFile = sails.services.fileservice.getThumbnailPath(file, 'png');
 						return sharp(fileName).rotate().resize(150, 150).embed().flatten().png().toFile(thumbFile).then(function() {
@@ -99,13 +103,13 @@ module.exports = {
 							return file;
 						});
 					case 'text': //TODO: Write this
-						return file;
+						return file;*/
 					default:
 						return file;
 				}
 			}, function(err) {
+				FileService.delete(file);
 				file.destroy();
-				fs.unlink(fileName, function(err) { });
 				throw err;
 			});
 		}).then(function(file) {
@@ -123,8 +127,7 @@ module.exports = {
 		var Model = sails.models.file;
 		Model.destroy(req.params.id, function(deletedFiles) {
 			var file = deletedFiles[0];
-			var filePath = sails.services.fileservice.getPath(file);
-			fs.unlink(filePath, function(err) { });
+			FileService.delete(file);
 			Model.publishDestroy(file.id);
 			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
 			res.json(file);

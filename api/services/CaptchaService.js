@@ -6,6 +6,9 @@ var noCaptcha = new NoCaptcha(sails.config.foxcaves.recaptcha.public, sails.conf
 
 module.exports = {
 	verify: function verify (req) {
+		if(!sails.config.foxcaves.recaptcha.enabled)
+			return Promise.resolve();
+
 		var captchaResponse = req.body['g-recaptcha-response'];
 		delete req.body['g-recaptcha-response'];
 		return noCaptcha.verifyAsync({

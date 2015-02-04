@@ -50,9 +50,19 @@ module.exports = {
 			model: 'User'
 		},
 
+		filePath: {
+			type: 'string'
+		},
+
+		thumbnailPath: {
+			type: 'string'
+		},
+
 		toJSON: function() {
 			var obj = this.toObject();
 			delete obj.hidden;
+			delete obj.filePath;
+			delete obj.thumbnailPath;
 			if(obj.owner && obj.owner.name)
 				obj.owner = obj.owner.name;
 			else
@@ -62,7 +72,7 @@ module.exports = {
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner', 'mimeType', 'thumbnailExtension', 'thumbnailMimeType', 'size', 'hidden' ];
+	    return [ 'id', 'fileID', 'owner', 'mimeType', 'thumbnailExtension', 'thumbnailMimeType', 'filePath', 'thumbnailPath', 'size', 'hidden' ];
 	},
 
 	beforeCreate: function (attrs, next) {
