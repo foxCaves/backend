@@ -73,14 +73,9 @@ module.exports = {
 		var Model = sails.models.file;
 
 		var params = req.body;
-		params.extension = params.extension.toLowerCase();
 		params.hidden = true;
 		params.owner = req.currentUser.id;
 		params.fileID = FileService.generateFileID();
-
-		params.mimeType = mime.lookup(params.extension).toLowerCase();
-		if(params.mimeType === 'text/html' || params.mimeType === 'text/javascript') //We do not want to be XSS'd over!
-			params.mimeType = 'text/plain';
 
 		Model.create(params).then(function(file) {
 			return Promise.promisify(uploadFile.upload, uploadFile)(FileService.makeReceiver(file)).then(function(uploadedFiles) {
@@ -88,6 +83,15 @@ module.exports = {
 			}).then(function(uploadedFile) {
 				file.size = uploadedFile.size;
 				file.filePath = uploadedFile.fd;
+
+				if(!file.displayName)
+					file.displayName = uploadedFile.filename;
+				if(!file.extension)
+					file.extension = uploadedFile.filename.substr(uploadedFile.filename.lastIndexOf('.')+1);
+
+				file.mimeType = mime.lookup(file.extension).toLowerCase();
+				if(file.mimeType === 'text/html' || file.mimeType === 'text/javascript') //We do not want to be XSS'd over!
+					file.mimeType = 'text/plain';
 
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {

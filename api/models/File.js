@@ -9,8 +9,7 @@
 module.exports = {
 	attributes: {
 		displayName: {
-			type: 'string',
-			required: true
+			type: 'string'
 		},
 
 		fileID: {
@@ -20,13 +19,11 @@ module.exports = {
 		},
 
 		extension: {
-			type: 'string',
-			required: true
+			type: 'string'
 		},
 
 		mimeType: {
-			type: 'string',
-			required: true
+			type: 'string'
 		},
 
 		thumbnailExtension: {
@@ -47,7 +44,8 @@ module.exports = {
 		},
 
 		owner: {
-			model: 'User'
+			model: 'User',
+			required: true
 		},
 
 		filePath: {
