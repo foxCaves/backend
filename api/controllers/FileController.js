@@ -139,10 +139,9 @@ module.exports = {
 			.where( actionUtil.parseCriteria(req) )
 			.limit( actionUtil.parseLimit(req) )
 			.skip( actionUtil.parseSkip(req) )
-			.sort( actionUtil.parseSort(req) );
-			// TODO: .populateEach(req.options);
-
-		query = actionUtil.populateEach(query, req);
+			.sort( actionUtil.parseSort(req) )
+			.populate('owner');
+			
 		query.exec(function found(err, matchingRecords) {
 			if (err)
 				return res.serverError(err);
@@ -156,7 +155,7 @@ module.exports = {
 	},
 
 	findOnePublic: function findOne(req, res) {
-		var query = sails.models.file.findOneByFileID(req.params.id).populate('owner').then(function(file) {
+		sails.models.file.findOneByFileID(req.params.id).populate('owner').then(function(file) {
 			if(!file)
 				return res.notFound();
 
