@@ -10,7 +10,7 @@ module.exports.policies = {
 		login: true,
 		logout: true,
 		
-		create: 'restrictedAttributes',
+		create: ['captcha', 'restrictedAttributes'],
 
 		getMe: ['auth', 'isLoggedIn'],
 		updateMe: ['auth', 'isLoggedIn', 'restrictedAttributes']
@@ -26,5 +26,9 @@ module.exports.policies = {
 		contents: true,
 		thumbnail: true,
 		findOnePublic: true
+	},
+
+	TestController: {
+		captcha: 'captcha'
 	}
 };

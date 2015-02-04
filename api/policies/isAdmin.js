@@ -9,6 +9,5 @@
 module.exports = function(req, res, next) {
 	if(req.currentUser && req.currentUser.isAdmin())
 		return next();
-	console.log(res);
 	return res.forbidden('You are not admin');
 };

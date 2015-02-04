@@ -25,6 +25,10 @@ module.exports.routes = {
 		view: 'homepage'
 	},
 
+	'/captcha': {
+		view: 'captcha'
+	},
+
 	//User routes
 	'POST /api/user/login': 'UserController.login',
 	'POST /api/user/logout': 'UserController.logout',
@@ -37,4 +41,7 @@ module.exports.routes = {
 	'GET /api/file/:id' : 'FileController.findOnePublic',
 	'GET /api/file/:id/contents.:extension' : 'FileController.contents',
 	'GET /api/file/:id/thumbnail.:thumbextension' : 'FileController.thumbnail',
+
+	//Test routes
+	'/api/test/captcha' : 'TestController.captcha'
 };
