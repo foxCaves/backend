@@ -21,7 +21,7 @@ module.exports = {
 		});
 	},
 
-	getHTML :  function getHTML(options) {
+	getHTML: function getHTML(options) {
 		if(!isEnabled())
 			return '';
 		return noCaptcha.toHTML(options);
