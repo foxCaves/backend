@@ -39,10 +39,12 @@ module.exports.routes = {
 
 	//File routes
 	'GET /api/file/:id' : 'FileController.findOnePublic',
-	'GET /api/file/:id/contents.:extension' : 'FileController.contents',
-	'HEAD /api/file/:id/contents.:extension' : 'FileController.contents',
-	'GET /api/file/:id/thumbnail.:thumbextension' : 'FileController.thumbnail',
-	'HEAD /api/file/:id/thumbnail.:extension' : 'FileController.thumbnail',
+	'/api/file/:id/contents.:extension' : 'FileController.contents',
+	'/api/file/:id/thumbnail.:thumbextension' : 'FileController.thumbnail',
+
+	//Config routes
+	'GET /api/config/csrfToken' : 'ConfigController.csrfToken',
+	'/api/config/captcha' : 'ConfigController.captcha',
 
 	//Test routes
 	'/api/test/captcha' : 'TestController.captcha'

@@ -17,13 +17,16 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
+
+		var sendData = (req.method !== 'HEAD');
+		if(sendData && req.method !== 'GET')
+			return res.status(405).json('Method not allowed');
+
 		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || file.extension !== req.params.extension) {
 				res.notFound();
 				return;
 			}
-
-			var sendData = (req.method !== 'HEAD');
 
 			var rangeStart, rangeEnd;
 			if(req.headers.range) {
@@ -72,11 +75,13 @@ module.exports = {
 	},
 
 	thumbnail: function thumbnail(req, res) {
+		var sendData = (req.method !== 'HEAD');
+		if(sendData && req.method !== 'GET')
+			return res.status(405).json('Method not allowed');
+
 		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
-
-			var sendData = (req.method !== 'HEAD');
 
 			res.setHeader('Content-Type', file.thumbnailMimeType);
 
