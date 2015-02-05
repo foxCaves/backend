@@ -23,7 +23,7 @@ module.exports = {
 				return;
 			}
 
-			var sendData = (req.method !== 'HEAD' && req.method !== 'OPTIONS');
+			var sendData = (req.method !== 'HEAD');
 
 			var rangeStart, rangeEnd;
 			if(req.headers.range) {
@@ -76,7 +76,7 @@ module.exports = {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
 				return res.notFound();
 
-			var sendData = (req.method !== 'HEAD' && req.method !== 'OPTIONS');
+			var sendData = (req.method !== 'HEAD');
 
 			res.setHeader('Content-Type', file.thumbnailMimeType);
 
