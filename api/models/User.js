@@ -69,29 +69,34 @@ module.exports = {
 			'passwordResetCode'
 		];
 	},
+
+	requireActivationEmail: function () {
+
+	},
 	
 	beforeCreate: function (attrs, next) {
 		if(!attrs.password) {
 			return next("Password is required");
 		}
-		return this.filterUpdate(attrs, next);
+		return this.filterUpdate(attrs).then(next, next);
 	},
 
 	beforeUpdate: function (attrs, next) {
-		return this.filterUpdate(attrs, next);
+		return this.filterUpdate(attrs).then(next, next);
 	},
 	
-	filterUpdate: function (attrs, next) {
-		if(attrs.password) {
-			bcrypt.genSaltAsync(10).then(function(salt) {
-				return bcrypt.hashAsync(attrs.password, salt);
-			}).then(function(hash) {
-				attrs.encryptedPassword = hash;
-				next();
-			}, next);
-		} else {
-			next();
-		}
+	filterUpdate: function (attrs) {
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			if(attrs.password) {
+				resolve(bcrypt.genSaltAsync(10).then(function(salt) {
+					return bcrypt.hashAsync(attrs.password, salt);
+				}).then(function(hash) {
+					attrs.encryptedPassword = hash;
+				}));
+			}
+			resolve();
+		});
 	}
 };
 

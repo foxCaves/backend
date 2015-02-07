@@ -35,6 +35,12 @@ module.exports = {
 		}).catch(res.serverError);
 	},
 
+	create: function(req, res) {
+		sails.models.user.create(req.body).then(function(user) {
+			res.json(user);
+		}, res.serverError);		
+	},
+
 	getMe: function(req, res) {
 		res.json(req.currentUser);
 	},
