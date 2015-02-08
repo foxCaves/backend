@@ -50,22 +50,30 @@ module.exports = {
 		},
 
 		toJSON: function() {
-		  var obj = this.toObject();
-		  delete obj.password;
-		  delete obj.encryptedPassword;
-		  delete obj.emailVerificationCode;
-		  delete obj.passwordResetCode;
-		  return obj;
+			var obj = this.toObject();
+			delete obj.password;
+			delete obj.encryptedPassword;
+			delete obj.emailVerificationCode;
+			delete obj.passwordResetCode;
+			return obj;
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'admin', 'files', 'encryptedPassword', 'emailVerificationCode', 'passwordResetCode' ];
+		return [
+			'id',
+			'admin',
+			'files',
+			'encryptedPassword',
+			'emailVerificationCode',
+			'passwordResetCode'
+		];
 	},
 	
 	beforeCreate: function (attrs, next) {
-		if(!attrs.password)
+		if(!attrs.password) {
 			return next("Password is required");
+		}
 		return this.filterUpdate(attrs, next);
 	},
 

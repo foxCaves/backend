@@ -8,19 +8,21 @@
 
 var mime = require('mime');
 var Promise = require('bluebird');
-var fs = Promise.promisifyAll(require('fs'));
 
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
 //var FileService = sails.services.fileservice;
 
+/*global FileService*/
+
 module.exports = {
 	contents: function contents(req, res) {
 		var contentDisposition = req.query.view ? 'inline' : 'attachment';
 
-		var sendData = (req.method !== 'HEAD');
-		if(sendData && req.method !== 'GET')
+		var sendData = req.method !== 'HEAD';
+		if(sendData && req.method !== 'GET') {
 			return res.status(405).json('Method not allowed');
+		}
 
 		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || file.extension !== req.params.extension) {
@@ -38,10 +40,10 @@ module.exports = {
 				var rangeMatch = req.headers.range.match(/^bytes=([0-9]*)-([0-9]*)$/);			
 				if(rangeMatch) {
 					rangeStart = (rangeMatch[1] === '') ? 0 : rangeMatch[1];
-					rangeEnd = (rangeMatch[2] === '') ? (file.size - 1) : rangeMatch[2];
+					rangeEnd = (rangeMatch[2] === '') ? file.size - 1 : rangeMatch[2];
 
 					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0) {
-						res.status(416).json("Invalid range for file");
+						res.status(416).json('Invalid range for file');
 						return;
 					}
 				} else {
@@ -68,20 +70,23 @@ module.exports = {
 				return FileService.open(file, 'r', {range: {startPos: rangeStart, endPos: rangeEnd}});
 			}
 		}).then(function(stream) {
-			if(!stream)
+			if(!stream) {
 				return;
+			}
 			stream.pipe(res);
 		}).catch(res.serverError);
 	},
 
 	thumbnail: function thumbnail(req, res) {
-		var sendData = (req.method !== 'HEAD');
-		if(sendData && req.method !== 'GET')
+		var sendData = req.method !== 'HEAD';
+		if(sendData && req.method !== 'GET') {
 			return res.status(405).json('Method not allowed');
+		}
 
 		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
-			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension)
+			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension) {
 				return res.notFound();
+			}
 
 			res.setHeader('Content-Type', file.thumbnailMimeType);
 
@@ -91,16 +96,18 @@ module.exports = {
 			}
 			return FileService.openThumbnail(file, 'r');
 		}).then(function(stream) {
-			if(!stream)
+			if(!stream) {
 				return;
+			}
 			stream.pipe(res);
 		}).catch(res.serverError);
 	},
 
 	create: function create(req, res) {
 		var uploadFile = req.file('file');
-		if(!uploadFile || !uploadFile.upload)
-			return res.badRequest("We need a file");
+		if(!uploadFile || !uploadFile.upload) {
+			return res.badRequest('We need a file');
+		}
 
 		var Model = sails.models.file;
 
@@ -114,23 +121,26 @@ module.exports = {
 				file.size = uploadedFile.size;
 				file.filePath = uploadedFile.fd;
 
-				if(!file.displayName)
+				if(!file.displayName) {
 					file.displayName = uploadedFile.filename;
-				if(!file.extension)
+				}
+				if(!file.extension) {
 					file.extension = uploadedFile.filename.substr(uploadedFile.filename.lastIndexOf('.')+1);
+				}
 
 				file.mimeType = mime.lookup(file.extension).toLowerCase();
-				if(file.mimeType === 'text/html' || file.mimeType === 'text/javascript') //We do not want to be XSS'd over!
+				if(file.mimeType === 'text/html' || file.mimeType === 'text/javascript') {//We do not want to be XSS'd over!
 					file.mimeType = 'text/plain';
-
+				}
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {
 					case 'image':
 						var sharp = require('sharp');
 						return new Promise(function(resolve, reject) {
-							var pipeline = sharp().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer, info) {
-								if(err)
+							var pipeline = sharp().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer) {
+								if(err) {
 									return reject(err);
+								}
 
 								file.thumbnailExtension = 'png';
 								file.thumbnailMimeType = 'image/png';
@@ -156,7 +166,7 @@ module.exports = {
 							file.thumbnailMimeType = null;
 							delete file.thumbnailExtension;
 							delete file.thumbnailMimeType;
-							console.log("Error making thumbnail", err);
+							console.log('Error making thumbnail', err);
 							return file;
 						});
 					case 'text': //TODO: Write this
@@ -194,15 +204,19 @@ module.exports = {
 		var Model = sails.models.file;
 
 		Model.find()
-		.where({ owner: req.currentUser.id, hidden: false })
-		.where( actionUtil.parseCriteria(req) )
-		.limit( actionUtil.parseLimit(req) )
-		.skip( actionUtil.parseSkip(req) )
-		.sort( actionUtil.parseSort(req) )
+		.where({
+			owner: req.currentUser.id,
+			hidden: false
+		})
+		.where(actionUtil.parseCriteria(req))
+		.limit(actionUtil.parseLimit(req))
+		.skip(actionUtil.parseSkip(req))
+		.sort(actionUtil.parseSort(req))
 		.populate('owner')
 		.exec(function found(err, matchingRecords) {
-			if (err)
+			if (err) {
 				return res.serverError(err);
+			}
 
 			if (req._sails.hooks.pubsub && req.isSocket) {
 				Model.subscribe(req, matchingRecords);
@@ -213,9 +227,12 @@ module.exports = {
 	},
 
 	findOnePublic: function findOne(req, res) {
-		sails.models.file.findOneByFileID(req.params.id).populate('owner').then(function(file) {
-			if(!file)
+		var Model = sails.models.file;
+
+		Model.findOneByFileID(req.params.id).populate('owner').then(function(file) {
+			if(!file) {
 				return res.notFound();
+			}
 
 			if (req._sails.hooks.pubsub && req.isSocket) {
 				Model.subscribe(req, file);

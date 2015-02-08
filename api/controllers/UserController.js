@@ -11,16 +11,19 @@ var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 module.exports = {
 	login: function(req, res) {
-		if(!req.body.login || !req.body.password)
+		if(!req.body.login || !req.body.password) {
 			return res.badRequest('Login and password fields must be set');
+		}
 
 		sails.models.user.findOneByEmail(req.body.login).then(function(user) {
-			if(!user)
+			if(!user) {
 				return sails.models.user.findOneByName(req.body.login);
+			}
 			return user;
 		}).then(function(user) {
-			if(!user)
+			if(!user) {
 				return res.forbidden('Invalid username or password');
+			}
 			return bcrypt.compareAsync(req.body.password, user.encryptedPassword).then(function(valid) {
 				if(valid) {
 					req.session.userid = user.id;

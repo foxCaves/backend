@@ -1,3 +1,10 @@
+'use strict';
+/**
+ * CaptchaService
+ *
+ * @description :: Service for handling captchas
+ */
+
 var Promise = require('bluebird');
 
 if(sails.config.foxcaves.recaptcha.enabled) {
@@ -25,11 +32,11 @@ if(sails.config.foxcaves.recaptcha.enabled) {
 	};
 } else {
 	module.exports = {
-		verify: function verify (req) {
+		verify: function verify() {
 			return Promise.resolve();
 		},
 
-		getHTML: function getHTML(options) {
+		getHTML: function getHTML() {
 			return '';
 		},
 

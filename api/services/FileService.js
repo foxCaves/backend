@@ -1,19 +1,25 @@
 'use strict';
+/**
+ * CaptchaService
+ *
+ * @description :: Service for handling files
+ */
 
 var Promise = require('bluebird');
-
-var MongoDB = require("mongodb");
+var MongoDB = require('mongodb');
 var MongoClient = Promise.promisifyAll(MongoDB.MongoClient);
+var util = require('util');
 
 //MongoDB Config
 var gridfsMongo = sails.config.connections.gridfsMongo;
 
-var uriMongo = 'mongodb://'
-    + (gridfsMongo.username ? ((gridfsMongo.password ? gridfsMongo.password+':' : '')+gridfsMongo.username+'@') : '')
-    + gridfsMongo.host+':'+(gridfsMongo.port || 27017)
-    + '/'+gridfsMongo.database;
+var uriMongo = util.format(
+	'mongodb://%s%s:%d/%s',
+	gridfsMongo.username ? (gridfsMongo.password ? gridfsMongo.username + ':' + gridfsMongo.password : gridfsMongo.username) + '@' : '',
+	gridfsMongo.host,
+	gridfsMongo.port || 27017
+);
 
-var MongoDBConnection = new MongoDB.Db(gridfsMongo.database, new MongoDB.Server(gridfsMongo.host, gridfsMongo.port), {w: 'majority'});
 var GridFS = require('gridfs-stream');
 
 var blobAdapter = require('skipper-gridfs')({  
@@ -34,9 +40,10 @@ function openFile(fd, mode, bucket, options) {
 
 	return connectMongo().then(function(db) {
 		_db = db;
-		var gridFS = GridFS(db, MongoDB);
-		if(mode.charAt(0) == 'r')
+		var gridFS = new GridFS(db, MongoDB);
+		if(mode.charAt(0) === 'r') {
 			return gridFS.createReadStream(options);
+		}
 		return gridFS.createWriteStream(options);	
 	}).then(function(stream) {
 		stream.on('close', function() {
@@ -56,7 +63,7 @@ function openFile(fd, mode, bucket, options) {
 }
 
 module.exports = {
-	makeReceiver: function makeReceiver(file) {
+	makeReceiver: function makeReceiver() {
 		return blobAdapter.receive();
 	},
 
@@ -70,7 +77,7 @@ module.exports = {
 
 	delete: function deleteFile(file) {
 		return connectMongo().then(function(db) {
-			return GridFS(db, MongoDB).then(function(gridFS) {
+			return new GridFS(db, MongoDB).then(function(gridFS) {
 				if(file.filePath) {
 					return gridFS.removeAsync({
 						filename: file.filePath,
@@ -89,8 +96,9 @@ module.exports = {
 					});
 				}
 			}).finally(function() {
-				if(db)
+				if(db) {
 					db.close();
+				}
 			});
 		});
 	},

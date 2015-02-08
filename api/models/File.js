@@ -61,16 +61,28 @@ module.exports = {
 			delete obj.hidden;
 			delete obj.filePath;
 			delete obj.thumbnailPath;
-			if(obj.owner && obj.owner.name)
+			if(obj.owner && obj.owner.name) {
 				obj.owner = obj.owner.name;
-			else
+			} else {
 				delete obj.owner;
+			}
 			return obj;
 		}
 	},
 
 	restrictedAttributes: function () {
-	    return [ 'id', 'fileID', 'owner', 'mimeType', 'thumbnailExtension', 'thumbnailMimeType', 'filePath', 'thumbnailPath', 'size', 'hidden' ];
+		return [
+			'id',
+			'fileID',
+			'owner',
+			'mimeType',
+			'thumbnailExtension',
+			'thumbnailMimeType',
+			'filePath',
+			'thumbnailPath',
+			'size',
+			'hidden'
+		];
 	},
 
 	beforeCreate: function (attrs, next) {

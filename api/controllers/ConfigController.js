@@ -8,7 +8,7 @@
 
 module.exports = {
 	csrfToken: function csrfToken(req, res) {
-		res.json({_csrf: res.locals._csrf || "DUMMY"});
+		res.json({_csrf: res.locals._csrf || 'DUMMY'});
 	},
 
 	captcha: function captcha(req, res) {

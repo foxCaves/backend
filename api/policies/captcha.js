@@ -1,3 +1,4 @@
+'use strict';
 /**
  * CAPTCHA
  *
@@ -12,10 +13,11 @@ module.exports = function(req, res, next) {
 		return next();
 	}, function(msg) {
 		var reason;
-		if(msg && msg.cause && msg.cause.message)
+		if(msg && msg.cause && msg.cause.message) {
 			reason = msg.cause.message;
-		else
+		} else {
 			reason = 'unknown';
+		}
 
 		res.forbidden({
 			error: 'Wrong CAPTCHA',
