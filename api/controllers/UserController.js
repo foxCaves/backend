@@ -37,8 +37,8 @@ module.exports = {
 	},
 
 	updateMe: function(req, res) {
-		sails.models.user.update(req.currentUser.id, req.body).then(function(users) {
-			res.json(users[0]);
+		sails.models.user.update(req.currentUser.id, req.body).get(0).then(function(user) {
+			res.json(user);
 			sails.models.user.publishUpdate(req.currentUser.id, req.body, req, { previous: req.currentUser });
 		}, res.serverError);
 	},

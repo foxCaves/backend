@@ -110,9 +110,7 @@ module.exports = {
 		params.fileID = FileService.generateFileID();
 
 		Model.create(params).then(function(file) {
-			return Promise.promisify(uploadFile.upload, uploadFile)(FileService.makeReceiver(file)).then(function(uploadedFiles) {
-				return uploadedFiles[0];
-			}).then(function(uploadedFile) {
+			return Promise.promisify(uploadFile.upload, uploadFile)(FileService.makeReceiver(file)).get(0).then(function(uploadedFile) {
 				file.size = uploadedFile.size;
 				file.filePath = uploadedFile.fd;
 
@@ -184,8 +182,7 @@ module.exports = {
 
 	destroy: function remove(req, res) {
 		var Model = sails.models.file;
-		Model.destroy(req.params.id, function(deletedFiles) {
-			var file = deletedFiles[0];
+		Model.destroy(req.params.id).get(0).then(function(file) {
 			FileService.delete(file);
 			Model.publishDestroy(file.id);
 			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
