@@ -76,7 +76,7 @@ module.exports = {
 	
 	beforeCreate: function (attrs, next) {
 		if(!attrs.password) {
-			return next("Password is required");
+			return next('Password is required');
 		}
 		return this.filterUpdate(attrs).then(next, next);
 	},
@@ -86,17 +86,14 @@ module.exports = {
 	},
 	
 	filterUpdate: function (attrs) {
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			if(attrs.password) {
-				resolve(bcrypt.genSaltAsync(10).then(function(salt) {
-					return bcrypt.hashAsync(attrs.password, salt);
-				}).then(function(hash) {
-					attrs.encryptedPassword = hash;
-				}));
-			}
-			resolve();
-		});
+		if(attrs.password) {
+			return bcrypt.genSaltAsync(10).then(function(salt) {
+				return bcrypt.hashAsync(attrs.password, salt);
+			}).then(function(hash) {
+				attrs.encryptedPassword = hash;
+			});
+		}
+		return Promise.resolve();
 	}
 };
 
