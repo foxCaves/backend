@@ -49,7 +49,28 @@
     "browser": false,
     "globals": {
       "Promise": true
-    }
+    },
+    "esnext": true,
+    "globalstrict": true,
+    "quotmark": true,
+    "undef": true,
+    "unused": true,
+    "singleGroups": true,
+    "nonbsp": true,
+    "noempty": true,
+    "noarg": true,
+    "newcap": true,
+    "maxstatements": 150,
+    "maxparams": 5,
+    "maxlen": 140,
+    "maxdepth": 4,
+    "latedef": true,
+    "immed": true,
+    "freeze": true,
+    "forin": true,
+    "eqeqeq": true,
+    "camelcase": false,
+    "curly": true
   },
   "author": "anonymous node/sails user",
   "license": ""
