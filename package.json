@@ -27,7 +27,6 @@
     "no-captcha": "^1.0.0",
     "rc": "~0.5.0",
     "sails": "~0.10.5",
-    "sails-disk": "~0.10.0",
     "sails-mongo": "^0.10.5",
     "sharp": "^0.9.1",
     "skipper-gridfs": "^0.5.3"
@@ -53,8 +52,7 @@
     ],
     "node": true,
     "browser": false,
-    "globals": {
-    },
+    "globals": {},
     "esnext": true,
     "globalstrict": true,
     "quotmark": true,
