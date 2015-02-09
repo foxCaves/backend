@@ -11,11 +11,11 @@ var crypto = Promise.promisifyAll(require('crypto'));
 var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 function generateString(len) {
-	return crypto.randomBytesAsync(len).then(function(str) {
-		for(var i = 0; i < str.length; i++) {
-			str[i] = chars.charCodeAt(str[i] % chars.length);
+	return crypto.randomBytesAsync(len).then(function(buffer) {
+		for(var i = 0; i < buffer.length; i++) {
+			buffer[i] = chars.charCodeAt(buffer[i] % chars.length);
 		}
-		return ret.toString('ascii');
+		return buffer.toString('ascii');
 	});
 }
 
