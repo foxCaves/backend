@@ -15,9 +15,9 @@ module.exports = {
 			return res.badRequest('Login and password fields must be set');
 		}
 
-		sails.models.user.findOneByEmail(req.body.login).then(function(user) {
+		User.findOneByEmail(req.body.login).then(function(user) {
 			if(!user) {
-				return sails.models.user.findOneByName(req.body.login);
+				return User.findOneByName(req.body.login);
 			}
 			return user;
 		}).then(function(user) {
@@ -36,9 +36,12 @@ module.exports = {
 	},
 
 	create: function(req, res) {
-		sails.models.user.create(req.body).then(function(user) {
+		UserService.checkRequireActivation(req, null).then(function(req) {
+			return User.create(req.body);
+		}).then(function(user) {
 			res.json(user);
-		}, res.serverError);		
+			UserService.checkSendActivation(req, user);
+		}).catch(res.serverError);
 	},
 
 	getMe: function(req, res) {
@@ -46,10 +49,13 @@ module.exports = {
 	},
 
 	updateMe: function(req, res) {
-		sails.models.user.update(req.currentUser.id, req.body).get(0).then(function(user) {
+		UserService.checkRequireActivation(req, req.currentUser).then(function(req) {
+			return User.update(req.currentUser.id, req.body);
+		}).get(0).then(function(user) {
 			res.json(user);
-			sails.models.user.publishUpdate(req.currentUser.id, req.body, req, { previous: req.currentUser });
-		}, res.serverError);
+			User.publishUpdate(req.currentUser.id, req.body, req, { previous: req.currentUser });
+			UserService.checkSendActivation(req, user);
+		}).catch(res.serverError);
 	},
 	
 	logout: function(req, res) {

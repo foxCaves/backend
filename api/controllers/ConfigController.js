@@ -13,7 +13,7 @@ module.exports = {
 
 	captcha: function captcha(req, res) {
 		res.setHeader('Content-Type', 'text/plain');
-		res.write(sails.services.captchaservice.getHTML(req.body));
+		res.write(CaptchaService.getHTML(req.body));
 		res.end();
 	}
 };

@@ -17,7 +17,7 @@ function checkModel(Model, modelInstance, req) {
 		throw 'You do not own this record';
 	}
 
-	var ownerId = (Model === sails.models.user) ? modelInstance.id : modelInstance.owner;
+	var ownerId = (Model === User) ? modelInstance.id : modelInstance.owner;
 
 	if(ownerId !== req.currentUser.id) {
 		throw 'You do not own this record';

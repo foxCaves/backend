@@ -86,16 +86,10 @@ module.exports = {
 	},
 
 	beforeCreate: function (attrs, next) {
-		attrs.fileID = 'rand_' + new Date().getTime();
-		return this.filterUpdate(attrs, next);
-	},
-
-	beforeUpdate: function (attrs, next) {
-		return this.filterUpdate(attrs, next);
-	},
-	
-	filterUpdate: function (attrs, next) {
-		next();
+		RandomService.generateFileID().then(function(fileID) {
+			attrs.fileID = fileID;
+			next();
+		}, next);
 	}
 };
 

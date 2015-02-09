@@ -11,7 +11,7 @@
 module.exports = function(req, res, next) {
 	var userid = req.session.userid;
 	if(userid) {
-		sails.models.user.findOneById(userid).then(function(user) {
+		User.findOneById(userid).then(function(user) {
 			req.currentUser = user;
 			next();
 		}, next);

@@ -11,8 +11,6 @@ var Promise = require('bluebird');
 
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
-//var FileService = sails.services.fileservice;
-
 /*global FileService*/
 
 module.exports = {
@@ -24,7 +22,7 @@ module.exports = {
 			return res.status(405).json('Method not allowed');
 		}
 
-		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+		File.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || file.extension !== req.params.extension) {
 				res.notFound();
 				return;
@@ -83,7 +81,7 @@ module.exports = {
 			return res.status(405).json('Method not allowed');
 		}
 
-		sails.models.file.findOneByFileID(req.params.id).then(function(file) {
+		File.findOneByFileID(req.params.id).then(function(file) {
 			if(!file || !file.thumbnailExtension || file.thumbnailExtension !== req.params.thumbextension) {
 				return res.notFound();
 			}
@@ -109,14 +107,12 @@ module.exports = {
 			return res.badRequest('We need a file');
 		}
 
-		var Model = sails.models.file;
-
 		var params = req.body;
 		params.hidden = true;
 		params.owner = req.currentUser.id;
 		params.fileID = FileService.generateFileID();
 
-		Model.create(params).then(function(file) {
+		File.create(params).then(function(file) {
 			return Promise.promisify(uploadFile.upload, uploadFile)(FileService.makeReceiver(file)).get(0).then(function(uploadedFile) {
 				file.size = uploadedFile.size;
 				file.filePath = uploadedFile.fd;
@@ -183,27 +179,24 @@ module.exports = {
 			file.hidden = false;
 			return Promise.promisify(file.save, file)();
 		}).then(function(file) {
-			Model.publishCreate(file);
+			File.publishCreate(file);
 			//TODO: Wait for sails to update and publish the entire object
-			sails.models.user.publishAdd(req.currentUser.id, 'files', file.id, req);
+			User.publishAdd(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
 		}).catch(res.serverError);
 	},
 
 	destroy: function remove(req, res) {
-		var Model = sails.models.file;
-		Model.destroy(req.params.id).get(0).then(function(file) {
+		File.destroy(req.params.id).get(0).then(function(file) {
 			FileService.delete(file);
-			Model.publishDestroy(file.id);
-			sails.models.user.publishRemove(req.currentUser.id, 'files', file.id, req);
+			File.publishDestroy(file.id);
+			User.publishRemove(req.currentUser.id, 'files', file.id, req);
 			res.json(file);
 		});
 	},
 
 	find: function find(req, res) {
-		var Model = sails.models.file;
-
-		Model.find()
+		File.find()
 		.where({
 			owner: req.currentUser.id,
 			hidden: false
@@ -219,7 +212,7 @@ module.exports = {
 			}
 
 			if (req._sails.hooks.pubsub && req.isSocket) {
-				Model.subscribe(req, matchingRecords);
+				File.subscribe(req, matchingRecords);
 			}
 
 			res.ok(matchingRecords);
@@ -227,15 +220,13 @@ module.exports = {
 	},
 
 	findOnePublic: function findOne(req, res) {
-		var Model = sails.models.file;
-
-		Model.findOneByFileID(req.params.id).populate('owner').then(function(file) {
+		File.findOneByFileID(req.params.id).populate('owner').then(function(file) {
 			if(!file) {
 				return res.notFound();
 			}
 
 			if (req._sails.hooks.pubsub && req.isSocket) {
-				Model.subscribe(req, file);
+				File.subscribe(req, file);
 			}
 
 			res.ok(file);
