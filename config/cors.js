@@ -37,7 +37,7 @@ module.exports.cors = {
   *                                                                          *
   ***************************************************************************/
 
-  allRoutes: false,
+  allRoutes: true,
 
   /***************************************************************************
   *                                                                          *
@@ -47,7 +47,7 @@ module.exports.cors = {
   *                                                                          *
   ***************************************************************************/
 
-  origin: 'https://foxcav.es,https://staging.foxcav.es,https://www.foxcav.es',
+  origin: 'https://foxcav.es,https://www.foxcav.es,http://localhost.foxcav.es',
 
   /***************************************************************************
   *                                                                          *
@@ -64,7 +64,7 @@ module.exports.cors = {
   *                                                                          *
   ***************************************************************************/
 
-  methods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
+  methods: 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
 
   /***************************************************************************
   *                                                                          *
@@ -73,6 +73,6 @@ module.exports.cors = {
   *                                                                          *
   ***************************************************************************/
 
-  headers: 'content-type'
+  headers: 'content-type,range,accept'
 
 };

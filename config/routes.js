@@ -22,24 +22,24 @@
 
 module.exports.routes = {
 	//User routes
-	'POST /api/user/login': 'UserController.login',
-	'POST /api/user/logout': 'UserController.logout',
+	'POST /user/login': 'UserController.login',
+	'POST /user/logout': 'UserController.logout',
 
-	'GET /api/user': 'UserController.get',
-	'POST /api/user': 'UserController.update',
-	'PUT /api/user': 'UserController.update',
-	'PATCH /api/user': 'UserController.update',
-	'POST /api/user/activate': 'UserController.activate',
+	'GET /user': 'UserController.get',
+	'POST /user': 'UserController.update',
+	'PUT /user': 'UserController.update',
+	'PATCH /user': 'UserController.update',
+	'POST /user/activate': 'UserController.activate',
 
 	//File routes
-	'GET /api/file/:id' : 'FileController.findOnePublic',
-	'/api/file/:id/contents.:extension' : 'FileController.contents',
-	'/api/file/:id/thumbnail.:thumbextension' : 'FileController.thumbnail',
+	'GET /file/:id' : 'FileController.findOnePublic',
+	'/file/:id/contents.:extension' : 'FileController.contents',
+	'/file/:id/thumbnail.:thumbextension' : 'FileController.thumbnail',
 
 	//Config routes
-	'GET /api/config/csrfToken' : 'ConfigController.csrfToken',
-	'/api/config/captcha' : 'ConfigController.captcha',
+	'GET /config/csrfToken' : 'ConfigController.csrfToken',
+	'/config/captcha' : 'ConfigController.captcha',
 
 	//Test routes
-	'/api/test/captcha' : 'TestController.captcha'
+	'/test/captcha' : 'TestController.captcha'
 };
