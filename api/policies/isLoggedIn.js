@@ -8,7 +8,7 @@
  *
  */
 module.exports = function(req, res, next) {
-	if(req.currentUser) {
+	if(req.currentUser && req.currentUser.isActive()) {
 		return next();
 	}
 	return res.forbidden('You are not logged in');

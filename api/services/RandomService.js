@@ -22,6 +22,14 @@ function generateString(len) {
 module.exports = {
 	generateString: generateString,
 
+	generateEmailVerificationCode: function generateEmailVerificationCode() {
+		return generateString(24);
+	},
+
+	generatePasswordResetCode: function generatePasswordResetCode() {
+		return generateString(32);
+	},
+
 	generateFileID: function generateFileID() {
 		return generateString(8);
 	}

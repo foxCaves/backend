@@ -33,9 +33,11 @@ module.exports.routes = {
 	'POST /api/user/login': 'UserController.login',
 	'POST /api/user/logout': 'UserController.logout',
 
-	'GET /api/user/me': 'UserController.getMe',
-	'POST /api/user/me': 'UserController.updateMe',
-	'PUT /api/user/me': 'UserController.updateMe',
+	'GET /api/user': 'UserController.get',
+	'POST /api/user': 'UserController.update',
+	'PUT /api/user': 'UserController.update',
+	'PATCH /api/user': 'UserController.update',
+	'POST /api/user/activate': 'UserController.activate',
 
 	//File routes
 	'GET /api/file/:id' : 'FileController.findOnePublic',

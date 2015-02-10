@@ -44,6 +44,10 @@ module.exports = {
 			collection: 'File',
 			via: 'owner'
 		},
+
+		isActive: function() {
+			return !this.emailVerificationCode;
+		},
 				   
 		isAdmin: function() {
 			return this.admin;
@@ -55,6 +59,7 @@ module.exports = {
 			delete obj.encryptedPassword;
 			delete obj.emailVerificationCode;
 			delete obj.passwordResetCode;
+			obj.active = this.isActive();
 			return obj;
 		}
 	},

@@ -15,8 +15,10 @@ module.exports.policies = {
 		
 		create: ['captcha', 'restrictedAttributes'],
 
-		getMe: ['auth', 'isLoggedIn'],
-		updateMe: ['auth', 'isLoggedIn', 'restrictedAttributes']
+		get: 'auth',
+		update: ['auth', 'isLoggedIn', 'restrictedAttributes'],
+
+		activate: 'auth'
 	},
 
 	FileController: {
