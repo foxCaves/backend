@@ -21,14 +21,6 @@
  */
 
 module.exports.routes = {
-	'/': {
-		view: 'homepage'
-	},
-
-	'/captcha': {
-		view: 'captcha'
-	},
-
 	//User routes
 	'POST /api/user/login': 'UserController.login',
 	'POST /api/user/logout': 'UserController.logout',
