@@ -13,20 +13,21 @@ module.exports.policies = {
 		login: true,
 		logout: true,
 		
-		create: ['captcha', 'restrictedAttributes'],
+		create: ['auth', 'isGuest', 'captcha', 'restrictedAttributes'],
 
 		get: 'auth',
 		update: ['auth', 'isLoggedIn', 'restrictedAttributes'],
 
-		activate: 'auth'
+		activate: ['auth', 'isLoggedIn'],
+		resendActivation: ['auth', 'isLoggedIn'],
 	},
 
 	FileController: {
-		findOne: ['auth', 'isLoggedIn', 'isAdminOrOwned', 'restrictedAttributes'],
-		find: ['auth', 'isLoggedIn', 'restrictedAttributes'],
+		findOne: ['auth', 'isLoggedIn', 'isActive', 'isAdminOrOwned', 'restrictedAttributes'],
+		find: ['auth', 'isLoggedIn', 'isActive', 'restrictedAttributes'],
 
-		create: ['auth', 'isLoggedIn', 'restrictedAttributes'],
-		destroy: ['auth', 'isLoggedIn', 'isAdminOrOwned'],
+		create: ['auth', 'isLoggedIn', 'isActive', 'restrictedAttributes'],
+		destroy: ['auth', 'isLoggedIn', 'isActive', 'isAdminOrOwned'],
 
 		contents: true,
 		thumbnail: true,

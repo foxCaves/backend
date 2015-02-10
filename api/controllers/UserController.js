@@ -9,33 +9,36 @@
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
-function checkRequireActivation(req, user) {
-	if(req.body.email && (!user || user.email !== req.body.email)) {
+function checkRequireActivation(data, user) {
+	if(data.email && (!user || user.email !== data.email)) {
 		return RandomService.generateEmailVerificationCode().then(function(code) {
-			req.body.emailVerificationCode = code;
-			return req;
+			data.emailVerificationCode = code;
+			return data;
 		});
 	}
-	return Promise.resolve(req);
+	return Promise.resolve(data);
 }
 
-function checkSendActivation(req, user) {
-	if(!req.body.emailVerificationCode) {
-		return;
+function sendActivationEmail(user, data) {
+	if(data && !data.emailVerificationCode) {
+		return false;
 	}
 
 	console.log('Code for user ', user.name, ' is ', user.emailVerificationCode);
 	//TODO: SEND HERE
+	return true;
 }
 
-function updateCurrentUser(req, res, data, promise) {
-	promise = promise || Promise.resolve(req);
-	return promise.then(function(req) {
-		return User.update(req.currentUser.id, data || req.body);
-	}).get(0).then(function(user) {
-		User.publishUpdate(req.currentUser.id, req.body, req, { previous: req.currentUser });
-		checkSendActivation(req, user);
-		res.json(user);
+function updateCurrentUser(req, res, data) {
+	if(!data.then) {
+		data = Promise.resolve(data);
+	}
+	return data.then(function(data) {
+		return User.update(req.currentUser.id, data).get(0).then(function(user) {
+			User.publishUpdate(req.currentUser.id, data, req, { previous: req.currentUser });
+			sendActivationEmail(req, data);
+			res.json(user);
+		});
 	}).catch(res.serverError);
 }
 
@@ -66,8 +69,6 @@ module.exports = {
 	},
 
 	activate: function(req, res) {
-		if(!req.currentUser)
-			return res.forbidden('You are not logged in');
 		if(!req.body.emailVerificationCode)
 			return res.badRequest('Missing parameter emailVerificationCode');
 		if(req.currentUser.isActive())
@@ -80,15 +81,19 @@ module.exports = {
 		}
 	},
 
-	create: function(req, res) {
-		if(req.currentUser)
-			return res.forbidden('You are logged in');
+	resendActivation: function(req, res) {
+		if(req.currentUser.isActive())
+			return res.badRequest('Already activated');
+		sendActivationEmail(user);
+		res.ok('Activation E-Mail has been resent');
+	},
 
-		checkRequireActivation(req, null).then(function(req) {
-			return User.create(req.body);
+	create: function(req, res) {
+		checkRequireActivation(req.body, null).then(function(data) {
+			return User.create(data);
 		}).then(function(user) {
 			req.session.userid = user.id;
-			checkSendActivation(req, user);
+			sendActivationEmail(user);
 			res.json(user);
 		}).catch(res.serverError);
 	},
@@ -98,7 +103,7 @@ module.exports = {
 	},
 
 	update: function(req, res) {
-		updateCurrentUser(req, res, null, checkRequireActivation(req, req.currentUser));
+		updateCurrentUser(req, res, checkRequireActivation(req.body, req.currentUser));
 	},
 	
 	logout: function(req, res) {
