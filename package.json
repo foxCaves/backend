@@ -33,7 +33,6 @@
       "sails",
       "CaptchaService",
       "FileService",
-      "UserService",
       "RandomService",
       "User",
       "File"

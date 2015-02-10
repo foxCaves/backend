@@ -101,9 +101,5 @@ module.exports = {
 				}
 			});
 		});
-	},
-
-	generateFileID: function generateFileID() {
-		return 'file_' + new Date().getTime();
 	}
 };
