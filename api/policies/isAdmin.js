@@ -11,5 +11,5 @@ module.exports = function(req, res, next) {
 	if(req.currentUser && req.currentUser.isAdmin()) {
 		return next();
 	}
-	return res.forbidden('You are not admin');
+	return res.forbidden({code: 'E_NOT_ADMIN', error: 'You are not an admin'});
 };

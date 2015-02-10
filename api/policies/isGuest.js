@@ -11,5 +11,5 @@ module.exports = function(req, res, next) {
 	if(!req.currentUser) {
 		return next();
 	}
-	return res.forbidden('You are logged in');
+	return res.forbidden({code: 'E_NOT_GUEST', error: 'You are logged in'});
 };

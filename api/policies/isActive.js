@@ -11,5 +11,5 @@ module.exports = function(req, res, next) {
 	if(req.currentUser.isActive()) {
 		return next();
 	}
-	return res.forbidden('Your user account is not active');
+	return res.forbidden({code: 'E_USER_INACTIVE', error: 'Your user account is not active'});
 };

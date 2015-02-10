@@ -15,10 +15,6 @@ module.exports = function ( req, res, next ) {
 	if(req.body) {
 		delete req.body.id;
 	}
-	
-	if(req.currentUser && req.currentUser.isAdmin()) {
-		return next();
-	}
 
 	var Model = actionUtil.parseModel( req );
 

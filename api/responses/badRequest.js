@@ -23,6 +23,12 @@ module.exports = function badRequest(data) {
 	var res = this.res;
 	var sails = req._sails;
 
+	if(!_.isObject(data)) {
+		data = {error: data};
+	}
+
+	data.status = 400;
+
 	// Set status code
 	res.status(400);
 
@@ -33,6 +39,6 @@ module.exports = function badRequest(data) {
 		sails.log.verbose('Sending 400 ("Bad Request") response');
 	} 
 
-	return res.json({error: data, status: 400});
+	return res.json(data);
 };
 

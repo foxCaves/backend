@@ -19,7 +19,7 @@ module.exports = {
 
 		var sendData = req.method !== 'HEAD';
 		if(sendData && req.method !== 'GET') {
-			return res.status(405).json('Method not allowed');
+			return res.status(405).json({code: 'E_METHOD_NOT_ALLOWED', error: 'Method not allowed'});
 		}
 
 		File.findOneByFileID(req.params.id).then(function(file) {
@@ -41,7 +41,7 @@ module.exports = {
 					rangeEnd = (rangeMatch[2] === '') ? file.size - 1 : rangeMatch[2];
 
 					if(rangeEnd >= file.size || rangeEnd < rangeStart || rangeStart < 0) {
-						res.status(416).json('Invalid range for file');
+						res.status(416).json({code: 'E_INVALID_RANGE', error: 'Invalid range for file'});
 						return;
 					}
 				} else {
@@ -78,7 +78,7 @@ module.exports = {
 	thumbnail: function thumbnail(req, res) {
 		var sendData = req.method !== 'HEAD';
 		if(sendData && req.method !== 'GET') {
-			return res.status(405).json('Method not allowed');
+			return res.status(405).json({code: 'E_METHOD_NOT_ALLOWED', error: 'Method not allowed'});
 		}
 
 		File.findOneByFileID(req.params.id).then(function(file) {
@@ -104,7 +104,7 @@ module.exports = {
 	create: function create(req, res) {
 		var uploadFile = req.file('file');
 		if(!uploadFile || !uploadFile.upload) {
-			return res.badRequest('We need a file');
+			return res.badRequest({code: 'E_MISSING_FILE', error: 'We need a file'});
 		}
 
 		var params = req.body;

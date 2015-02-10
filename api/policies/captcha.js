@@ -20,6 +20,7 @@ module.exports = function(req, res, next) {
 		}
 
 		res.forbidden({
+			code: 'E_WRONG_CAPTCHA',
 			error: 'Wrong CAPTCHA',
 			reason: reason
 		});

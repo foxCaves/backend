@@ -45,7 +45,7 @@ function updateCurrentUser(req, res, data) {
 module.exports = {
 	login: function(req, res) {
 		if(!req.body.login || !req.body.password) {
-			return res.badRequest('Login and password fields must be set');
+			return res.badRequest({code: 'E_MISSING_PARAMETER', error: 'Login and password fields must be set'});
 		}
 
 		User.findOneByEmail(req.body.login).then(function(user) {
@@ -55,14 +55,14 @@ module.exports = {
 			return user;
 		}).then(function(user) {
 			if(!user) {
-				return res.forbidden('Invalid username or password');
+				return res.forbidden({code: 'E_INVALID_LOGIN', error: 'Invalid username or password'});
 			}
 			return bcrypt.compareAsync(req.body.password, user.encryptedPassword).then(function(valid) {
 				if(valid) {
 					req.session.userid = user.id;
 					return res.json(user);
 				} else {
-					return res.forbidden('Invalid username or password');
+					return res.forbidden({code: 'E_INVALID_LOGIN', error: 'Invalid username or password'});
 				}
 			});
 		}).catch(res.serverError);
@@ -70,20 +70,20 @@ module.exports = {
 
 	activate: function(req, res) {
 		if(!req.body.emailVerificationCode)
-			return res.badRequest('Missing parameter emailVerificationCode');
+			return res.badRequest({code: 'E_MISSING_PARAMETER', error: 'Missing parameter emailVerificationCode'});
 		if(req.currentUser.isActive())
 			return res.json(req.currentUser);
 
 		if(req.body.emailVerificationCode === req.currentUser.emailVerificationCode) {
 			updateCurrentUser(req, res, {emailVerificationCode: null});
 		} else {
-			return res.forbidden('Wrong code');
+			return res.forbidden({code: 'E_INVALID_CODE', error: 'Wrong code'});
 		}
 	},
 
 	resendActivation: function(req, res) {
 		if(req.currentUser.isActive())
-			return res.badRequest('Already activated');
+			return res.badRequest({code: 'E_ALREADY_ACTIVE', error: 'Already activated'});
 		sendActivationEmail(user);
 		res.ok('Activation E-Mail has been resent');
 	},

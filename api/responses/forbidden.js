@@ -20,6 +20,12 @@ module.exports = function forbidden (data) {
 	var res = this.res;
 	var sails = req._sails;
 
+	if(!_.isObject(data)) {
+		data = {error: data};
+	}
+
+	data.status = 403;
+
 	// Set status code
 	res.status(403);
 
@@ -30,6 +36,6 @@ module.exports = function forbidden (data) {
 		sails.log.verbose('Sending 403 ("Forbidden") response');
 	}
 
-	return res.json({error: data, status: 403});
+	return res.json(data);
 };
 

@@ -20,6 +20,12 @@ module.exports = function serverError (data) {
 	var res = this.res;
 	var sails = req._sails;
 
+	if(!_.isObject(data)) {
+		data = {error: data};
+	}
+
+	data.status = 500;
+
 	// Set status code
 	res.status(500);
 
@@ -37,6 +43,6 @@ module.exports = function serverError (data) {
 		data = undefined;
 	}
 
-	return res.json({error: data, status: 500});
+	return res.json(data);
 };
 

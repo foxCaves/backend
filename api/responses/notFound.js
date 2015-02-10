@@ -25,6 +25,12 @@ module.exports = function notFound (data) {
 	var res = this.res;
 	var sails = req._sails;
 
+	if(!_.isObject(data)) {
+		data = {error: data};
+	}
+
+	data.status = 404;
+
 	// Set status code
 	res.status(404);
 
@@ -42,6 +48,6 @@ module.exports = function notFound (data) {
 		data = undefined;
 	}
 
-	return res.json({error: data, status: 404});
+	return res.json(data);
 };
 

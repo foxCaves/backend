@@ -35,6 +35,22 @@ module.exports = function(req, res, next) {
 	var Model = actionUtil.parseModel( req );
 
 	Model.findOneById(req.params.id).then(function(modelInstance) {
-		return checkModel(Model, modelInstance, req);
-	}).then(next, next);
+		if(!modelInstance) {
+			return false;
+		}
+
+		var ownerId = (Model === User) ? modelInstance.id : modelInstance.owner;
+
+		if(ownerId !== req.currentUser.id) {
+			return false
+		}
+
+		return true;
+	}).then(function(allowed) {
+		if(allowed) {
+			return next();
+		}
+
+		return res.forbidden({code: 'E_NOT_OWNED', error: 'You do not own this record'});
+	}).catch(res.serverError);
 };
