@@ -33,6 +33,6 @@ module.exports = function badRequest(data) {
 		sails.log.verbose('Sending 400 ("Bad Request") response');
 	} 
 
-	return res.jsonx({error: data});
+	return res.json({error: data, status: 400});
 };
 

@@ -24,5 +24,5 @@ module.exports = function sendOK (data) {
 	// Set status code
 	res.status(200);
 
-	return res.jsonx(data);
+	return res.json(data);
 };

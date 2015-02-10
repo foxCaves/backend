@@ -42,6 +42,6 @@ module.exports = function notFound (data) {
 		data = undefined;
 	}
 
-	return res.jsonx({error: data, code: 404});
+	return res.json({error: data, status: 404});
 };
 

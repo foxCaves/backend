@@ -37,6 +37,6 @@ module.exports = function serverError (data) {
 		data = undefined;
 	}
 
-	return res.jsonx({error: data, code: 500});
+	return res.json({error: data, status: 500});
 };
 

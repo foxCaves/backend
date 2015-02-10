@@ -30,6 +30,6 @@ module.exports = function forbidden (data) {
 		sails.log.verbose('Sending 403 ("Forbidden") response');
 	}
 
-	return res.jsonx({error: data, status: 403});
+	return res.json({error: data, status: 403});
 };
 
