@@ -32,20 +32,9 @@ module.exports = function(req, res, next) {
 		delete req.body.id;
 	}
 	
-	if(req.currentUser && req.currentUser.isAdmin()) {
-		return next();
-	}
 	var Model = actionUtil.parseModel( req );
 
-	Model.findOneById(req.params.parentid || req.params.id).then(function(modelInstance) {
+	Model.findOneById(req.params.id).then(function(modelInstance) {
 		return checkModel(Model, modelInstance, req);
-	}).then(function() {
-		if(req.params.parentid && req.params.id) {
-			var associationAttr = _.findWhere(Model.associations, { alias: req.options.alias });
-			var ChildModel = sails.models[associationAttr.collection];
-			return ChildModel.findOneById(req.params.id).then(function(modelInstance) {
-				return checkModel(ChildModel, modelInstance, req);
-			});
-		}
 	}).then(next, next);
 };

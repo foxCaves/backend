@@ -23,11 +23,11 @@ module.exports.policies = {
 	},
 
 	FileController: {
-		findOne: ['auth', 'isLoggedIn', 'isActive', 'isAdminOrOwned', 'restrictedAttributes'],
+		findOne: ['auth', 'isLoggedIn', 'isActive', 'isOwned', 'restrictedAttributes'],
 		find: ['auth', 'isLoggedIn', 'isActive', 'restrictedAttributes'],
 
 		create: ['auth', 'isLoggedIn', 'isActive', 'restrictedAttributes'],
-		destroy: ['auth', 'isLoggedIn', 'isActive', 'isAdminOrOwned'],
+		destroy: ['auth', 'isLoggedIn', 'isActive', 'isOwned'],
 
 		contents: true,
 		thumbnail: true,
