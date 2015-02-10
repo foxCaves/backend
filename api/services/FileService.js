@@ -11,7 +11,7 @@ var MongoClient = Promise.promisifyAll(MongoDB.MongoClient);
 var util = require('util');
 
 //MongoDB Config
-var gridfsMongo = sails.config.connections.gridfsMongo;
+var gridfsMongo = sails.config.connections[sails.config.foxcaves.gridfsMongoConnection];
 
 var uriMongo = util.format(
 	'mongodb://%s%s:%d/%s',
