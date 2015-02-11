@@ -11,7 +11,12 @@ var Promise = require('bluebird');
 
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
-/*global FileService*/
+var sharp;
+try {
+	sharp = require('sharp');
+} catch(e) {
+	 console.warn("Sharp is not installed. Can not render image thumbnails!");
+}
 
 module.exports = {
 	contents: function contents(req, res) {
@@ -131,8 +136,11 @@ module.exports = {
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {
 					case 'image':
+						if(!sharp) {
+							return file;
+						}
 						return new Promise(function(resolve, reject) {
-							var pipeline = require('sharp')().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer) {
+							var pipeline = sharp().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer) {
 								if(err) {
 									return reject(err);
 								}
