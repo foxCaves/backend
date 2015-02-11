@@ -33,14 +33,12 @@ function sendActivationEmail(user, data) {
 		return false;
 	}
 
-	console.log('Activation Code for user ', user.name, ' is ', user.emailVerificationCode);
-	//TODO: SEND HERE
+	MailService.send('activation', user);
 	return true;
 }
 
 function sendPasswordForgot(user) {
-	console.log('Password Reset Code for user ', user.name, ' is ', user.passwordResetCode);
-	//TODO: SEND HERE
+	MailService.send('forgot_password', user);
 	return true;
 }
 
@@ -72,6 +70,10 @@ module.exports = {
 			return bcrypt.compareAsync(req.body.password, user.encryptedPassword).then(function(valid) {
 				if(valid) {
 					req.session.userid = user.id;
+					if(user.passwordResetCode) {
+						user.passwordResetCode = null;
+						user.save();
+					}
 					return res.json(user);
 				} else {
 					return res.forbidden({code: 'E_INVALID_LOGIN', error: 'Invalid username or password'});
