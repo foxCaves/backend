@@ -9,6 +9,15 @@
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
+function findUserByLogin(login) {
+	return User.findOneByEmail(login).then(function(user) {
+		if(!user) {
+			return User.findOneByName(login);
+		}
+		return user;
+	});
+}
+
 function checkRequireActivation(data, user) {
 	if(data.email && (!user || user.email !== data.email)) {
 		return RandomService.generateEmailVerificationCode().then(function(code) {
@@ -24,12 +33,18 @@ function sendActivationEmail(user, data) {
 		return false;
 	}
 
-	console.log('Code for user ', user.name, ' is ', user.emailVerificationCode);
+	console.log('Activation Code for user ', user.name, ' is ', user.emailVerificationCode);
 	//TODO: SEND HERE
 	return true;
 }
 
-function updateCurrentUser(req, res, data) {
+function sendPasswordForgot(user) {
+	console.log('Password Reset Code for user ', user.name, ' is ', user.passwordResetCode);
+	//TODO: SEND HERE
+	return true;
+}
+
+function updateCurrentUser(req, res, data, noResponse) {
 	if(!data.then) {
 		data = Promise.resolve(data);
 	}
@@ -37,7 +52,9 @@ function updateCurrentUser(req, res, data) {
 		return User.update(req.currentUser.id, data).get(0).then(function(user) {
 			User.publishUpdate(req.currentUser.id, data, req, { previous: req.currentUser });
 			sendActivationEmail(req, data);
-			res.json(user);
+			if(!noResponse) {
+				res.json(user);
+			}
 		});
 	}).catch(res.serverError);
 }
@@ -48,12 +65,7 @@ module.exports = {
 			return res.badRequest({code: 'E_MISSING_PARAMETER', error: 'Login and password fields must be set'});
 		}
 
-		User.findOneByEmail(req.body.login).then(function(user) {
-			if(!user) {
-				return User.findOneByName(req.body.login);
-			}
-			return user;
-		}).then(function(user) {
+		findUserByLogin(req.body.login).then(function(user) {
 			if(!user) {
 				return res.forbidden({code: 'E_INVALID_LOGIN', error: 'Invalid username or password'});
 			}
@@ -86,6 +98,42 @@ module.exports = {
 			return res.badRequest({code: 'E_ALREADY_ACTIVE', error: 'Already activated'});
 		sendActivationEmail(user);
 		res.ok('Activation E-Mail has been resent');
+	},
+
+	sendPasswordReset: function(req, res) {
+		if(!req.body.login) {
+			return res.badRequest({code: 'E_MISSING_PARAMETER', error: 'Login field must be set'});
+		}
+
+		findUserByLogin(req.body.login).then(function(user) {
+			if(!user) {
+				return;
+			}
+
+			return RandomService.generatePasswordResetCode().then(function(code) {
+				user.passwordResetCode = code;
+				return user.save().then(sendPasswordForgot);
+			});
+		}).then(function() {
+			return res.ok('Password forgot E-Mail sent if such user exists');
+		}).catch(res.serverError);
+	},
+
+	resetPassword: function(req, res) {
+		if(!req.body.login || !req.body.passwordResetCode || !req.body.password) {
+			return res.badRequest({code: 'E_MISSING_PARAMETER', error: 'Login, passwordResetCode and password fields must be set'});
+		}
+
+		findUserByLogin(req.body.login).then(function(user) {
+			if(!user || user.passwordResetCode !== req.body.passwordResetCode) {
+				return res.forbidden({code: 'E_INVALID_DATA', error: 'Invalid username or reset code'});
+			}
+
+			user.password = req.body.password;
+			return user.save().then(function() {
+				return res.json(user);
+			});
+		}).catch(res.serverError);
 	},
 
 	create: function(req, res) {

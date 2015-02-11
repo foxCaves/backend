@@ -20,6 +20,9 @@ module.exports.policies = {
 
 		activate: ['auth', 'isLoggedIn'],
 		resendActivation: ['auth', 'isLoggedIn'],
+
+		sendPasswordReset: ['auth', 'isGuest', 'captcha'],
+		resetPassword: ['auth', 'isGuest']
 	},
 
 	FileController: {

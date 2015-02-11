@@ -28,8 +28,12 @@ module.exports.routes = {
 	'GET /user': 'UserController.get',
 	'POST /user': 'UserController.update',
 	'PUT /user': 'UserController.update',
+
 	'POST /user/activate': 'UserController.activate',
 	'POST /user/activate/resend': 'UserController.resendActivation',
+
+	'POST /user/reset/send': 'UserController.sendPasswordReset',
+	'POST /user/reset': 'UserController.resetPassword',
 
 	//File routes
 	'GET /file/:id' : 'FileController.findOnePublic',
