@@ -131,9 +131,8 @@ module.exports = {
 				var mimeCategory = file.mimeType.split('/')[0];
 				switch(mimeCategory) {
 					case 'image':
-						var sharp = require('sharp');
 						return new Promise(function(resolve, reject) {
-							var pipeline = sharp().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer) {
+							var pipeline = require('sharp')().rotate().resize(150, 150).embed().flatten().png().toBuffer(function(err, buffer) {
 								if(err) {
 									return reject(err);
 								}
