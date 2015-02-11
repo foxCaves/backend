@@ -70,10 +70,6 @@ module.exports = {
 			return bcrypt.compareAsync(req.body.password, user.encryptedPassword).then(function(valid) {
 				if(valid) {
 					req.session.userid = user.id;
-					if(user.passwordResetCode) {
-						user.passwordResetCode = null;
-						user.save();
-					}
 					return res.json(user);
 				} else {
 					return res.forbidden({code: 'E_INVALID_LOGIN', error: 'Invalid username or password'});
