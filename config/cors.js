@@ -47,7 +47,7 @@ module.exports.cors = {
   *                                                                          *
   ***************************************************************************/
 
-  origin: 'https://foxcav.es,https://www.foxcav.es,http://localhost.foxcav.es',
+  origin: 'http://localhost.foxcav.es',
 
   /***************************************************************************
   *                                                                          *
