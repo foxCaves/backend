@@ -3,18 +3,13 @@ module.exports = function(sails) {
 		initialize: function(cb) {
 			sails.on('ready', function() {
 				console.info('BEGIN drop privileges');
-				if(sails.config.foxcaves.security.chroot) {
-					console.info('chroot,setuid,setgid');
-					require('chroot')(process.cwd(), sails.config.foxcaves.security.uid, sails.config.foxcaves.security.gid);
-				} else {
-					if(sails.config.foxcaves.security.gid) {
-						console.info('setgid');
-						process.setgid(sails.config.foxcaves.security.gid);
-					}
-					if(sails.config.foxcaves.security.uid) {
-						console.info('setuid');
-						process.setuid(sails.config.foxcaves.security.uid);
-					}
+				if(sails.config.foxcaves.gid) {
+					console.info('setgid(' + sails.config.foxcaves.gid + ')');
+					process.setgid(sails.config.foxcaves.gid);
+				}
+				if(sails.config.foxcaves.uid) {
+					console.info('setuid(' + sails.config.foxcaves.uid + ')');
+					process.setuid(sails.config.foxcaves.uid);
 				}
 				console.info('END drop privileges');
 			});
