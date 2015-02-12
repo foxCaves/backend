@@ -31,6 +31,6 @@ module.exports = {
 	},
 
 	generateFileID: function generateFileID() {
-		return generateString(8);
+		return generateString(10);
 	}
 };
