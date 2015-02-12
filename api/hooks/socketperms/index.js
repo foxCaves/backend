@@ -8,8 +8,8 @@ module.exports = function (sails) {
 					var fs = require('fs');
 					var socket = sails.config.port;
 					var stats = fs.statSync(socket);
-					fs.chownSync(sails.config.chownSocket.uid || stats.uid, sails.config.chownSocket.gid || stats.gid);
-					fs.chmodSync(sails.config.chownSocket.chmod, socket);
+					fs.chownSync(socket, sails.config.chownSocket.uid || stats.uid, sails.config.chownSocket.gid || stats.gid);
+					fs.chmodSync(socket, sails.config.chownSocket.chmod);
 				}
 			});
 			cb();
