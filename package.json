@@ -7,7 +7,7 @@
   "dependencies": {
     "bcrypt": "^0.8.1",
     "bluebird": "^2.9.1",
-    "connect-redis": "^2.2.0",
+    "connect-redis": "^1.4.5",
     "ejs": "~0.8.4",
     "gridfs-stream": "^0.5.3",
     "include-all": "~0.1.3",
