@@ -5,6 +5,9 @@ module.exports.foxcaves = {
 		public: 'Site key',
 		enabled: true
 	},
-	uid: null,
-	gid: null
+	security: {
+		uid: null,
+		gid: null,
+		chroot: false
+	}
 };
